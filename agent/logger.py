@@ -1,18 +1,22 @@
 """
-logger.py — Posts decisions + PnL to Express backend. Falls back to local file.
+logger.py — Posts decisions + PnL to backend. Streams every log line to /api/logs.
+Falls back to local file when backend is down.
 """
 
 import json, os, sys, requests
 from datetime import datetime, timezone
+from pathlib import Path
+from dotenv import load_dotenv
 
-# Ensure UTF-8 output on Windows
+load_dotenv(dotenv_path=Path(__file__).parent / ".env")
+
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
 
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:3001")
-AGENT_API_KEY = os.getenv("AGENT_API_SECRET", "")   # must match AGENT_API_SECRET in backend
-DRY_RUN     = os.getenv("DRY_RUN", "true").lower() == "true"
-LOG_FILE    = os.path.join(os.path.dirname(__file__), "..", "trades.json")
+BACKEND_URL   = os.getenv("BACKEND_URL", "http://localhost:3001")
+AGENT_API_KEY = os.getenv("AGENT_API_KEY", "")
+DRY_RUN       = os.getenv("DRY_RUN", "true").lower() == "true"
+LOG_FILE      = os.path.join(os.path.dirname(__file__), "..", "trades.json")
 
 _cycles = 0
 
@@ -22,6 +26,20 @@ def _auth_headers() -> dict:
     if AGENT_API_KEY:
         h["x-agent-key"] = AGENT_API_KEY
     return h
+
+
+def push_log(line: str):
+    """Push a single log line to backend (non-blocking best-effort)."""
+    print(line)  # always print to stdout too
+    try:
+        requests.post(
+            f"{BACKEND_URL}/api/logs",
+            json={"line": line},
+            headers=_auth_headers(),
+            timeout=2,
+        )
+    except Exception:
+        pass  # never block agent on log failure
 
 
 def _load_fallback() -> list:
@@ -39,7 +57,7 @@ def _save_fallback(trades: list):
         with open(LOG_FILE, "w") as f:
             json.dump(trades[:500], f, indent=2)
     except Exception as e:
-        print(f"[Logger] File fallback failed: {e}")
+        push_log(f"[Logger] File fallback failed: {e}")
 
 
 def log_decision(decision: dict, market: dict, sentiment: dict,
@@ -76,20 +94,20 @@ def log_decision(decision: dict, market: dict, sentiment: dict,
         r.raise_for_status()
         posted = True
     except Exception as e:
-        print(f"[Logger] Backend unreachable, using file fallback: {e}")
+        push_log(f"[Logger] Backend unreachable, using file fallback: {e}")
         trades = _load_fallback()
         trades.insert(0, {**payload, "timestamp": datetime.now(timezone.utc).isoformat()})
         _save_fallback(trades)
 
-    ac  = {"LONG":"[LONG ]","SHORT":"[SHORT]","HOLD":"[HOLD ]","EXIT":"[EXIT ]"}.get(decision["action"], "[?]")
-    rsi = f"{market.get('rsi_14'):.2f}" if market.get("rsi_14") is not None else "N/A"
+    ac    = {"LONG":"[LONG ]","SHORT":"[SHORT]","HOLD":"[HOLD ]","EXIT":"[EXIT ]"}.get(decision["action"], "[?]")
+    rsi   = f"{market.get('rsi_14'):.2f}" if market.get("rsi_14") is not None else "N/A"
     pnl_s = f"PnL: ${pnl_usdc:.4f}" if pnl_usdc is not None else ""
-    print(
-        f"\n{ac}  {decision['symbol']} @ ${decision.get('mark_price', 0):,.2f}  "
-        f"RSI: {rsi}  Eng: {sentiment.get('sentiment_score', 0):.2f}  "
-        f"{pnl_s}  {'✓' if posted else '⚠ fallback'}\n"
-        f"  {decision['reasoning'][:120]}\n"
+    push_log(
+        f"{ac}  {decision['symbol']} @ ${decision.get('mark_price',0):,.2f}  "
+        f"RSI: {rsi}  Eng: {sentiment.get('sentiment_score',0):.2f}  "
+        f"{pnl_s}  {'OK' if posted else 'FALLBACK'}"
     )
+    push_log(f"  {decision['reasoning'][:150]}")
     return payload
 
 
