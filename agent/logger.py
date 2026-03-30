@@ -14,7 +14,7 @@ if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
 
 BACKEND_URL   = os.getenv("BACKEND_URL", "http://localhost:3001")
-AGENT_API_KEY = os.getenv("AGENT_API_KEY", "")
+AGENT_API_KEY = os.getenv("AGENT_API_SECRET", "")
 DRY_RUN       = os.getenv("DRY_RUN", "true").lower() == "true"
 LOG_FILE      = os.path.join(os.path.dirname(__file__), "..", "trades.json")
 
