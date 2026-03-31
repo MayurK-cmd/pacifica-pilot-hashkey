@@ -1,30 +1,20 @@
 import { useState, useEffect } from "react";
 import { useApi } from "../useApi";
+import { motion } from "framer-motion";
 
-/**
- * AgentStatusBar — shows live agent status + enable/disable toggle.
- * Sits at the top of the Dashboard below the nav bar.
- *
- * - Polls /api/agent/status every 10s to show live/stale state
- * - Toggle calls /api/agent/toggle which sets Config.enabled in DB
- * - The Python agent picks up the change on its next 30s sleep cycle
- */
 export default function AgentStatusBar() {
   const api = useApi();
+  const PACIFICA_BLUE = "#00d1ff";
 
-  const [status,   setStatus]   = useState(null);   // from /api/agent/status
-  const [enabled,  setEnabled]  = useState(null);   // from /api/config
+  const [status,   setStatus]   = useState(null);
+  const [enabled,  setEnabled]  = useState(null);
   const [toggling, setToggling] = useState(false);
   const [error,    setError]    = useState("");
 
-  // Load initial enabled state from config
   useEffect(() => {
-    api.get("/api/config")
-      .then(cfg => setEnabled(cfg.enabled))
-      .catch(() => {});
-  }, []);
+    api.get("/api/config").then(cfg => setEnabled(cfg.enabled)).catch(() => {});
+  }, [api]);
 
-  // Poll agent status every 10s
   useEffect(() => {
     const poll = () => {
       fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/api/agent/status`)
@@ -51,112 +41,45 @@ export default function AgentStatusBar() {
     }
   }
 
-  // Derive display values
-  const isRunning  = status?.running ?? false;
-  const lastCycle  = status?.lastCycleAt
-    ? new Date(status.lastCycleAt).toLocaleTimeString()
-    : "Never";
-  const cycles     = status?.cyclesCompleted ?? 0;
-  const lastSymbol = status?.lastSymbol ?? "—";
-  const lastError  = status?.lastError;
-
-  // Status dot color:
-  // green  = enabled + running (heartbeat fresh)
-  // yellow = enabled + not running (agent offline / starting up)
-  // grey   = disabled
-  const dotColor = !enabled
-    ? "#6b7280"
-    : isRunning
-      ? "#22c55e"
-      : "#f59e0b";
-
-  const statusLabel = !enabled
-    ? "Disabled"
-    : isRunning
-      ? `Running — ${lastSymbol}`
-      : "Enabled (agent offline)";
+  const isRunning = status?.running ?? false;
+  const dotColor = !enabled ? "#3f3f46" : isRunning ? PACIFICA_BLUE : "#f59e0b";
 
   return (
-    <div style={{
-      display:        "flex",
-      alignItems:     "center",
-      justifyContent: "space-between",
-      padding:        "10px 20px",
-      borderBottom:   "1px solid var(--border)",
-      background:     "var(--code-bg)",
-      fontSize:       "13px",
-      gap:            "16px",
-      flexWrap:       "wrap",
-    }}>
-      {/* Left — status indicator */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        {/* Pulsing dot */}
-        <span style={{
-          width:        "10px",
-          height:       "10px",
-          borderRadius: "50%",
-          background:   dotColor,
-          display:      "inline-block",
-          boxShadow:    isRunning ? `0 0 0 3px ${dotColor}33` : "none",
-          transition:   "background 0.3s",
-        }} />
-
-        <span style={{ color: "var(--text-h)", fontWeight: 500 }}>
-          Agent: {statusLabel}
-        </span>
-
-        {isRunning && (
-          <span style={{ color: "var(--text)", fontSize: "12px" }}>
-            {cycles} cycles · last {lastCycle}
+    <div className="flex items-center justify-between px-8 py-3 border-b border-[#1a2b3b] bg-black/30 font-mono text-[11px] uppercase tracking-wider">
+      <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3">
+          <motion.span 
+            animate={isRunning ? { opacity: [1, 0.4, 1], scale: [1, 1.2, 1] } : {}}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="w-2.5 h-2.5 rounded-full"
+            style={{ backgroundColor: dotColor, boxShadow: isRunning ? `0 0 12px ${PACIFICA_BLUE}` : 'none' }}
+          />
+          <span className="text-white font-bold">
+            Agent: {!enabled ? "Offline" : isRunning ? `Active — ${status?.lastSymbol}` : "Standby"}
           </span>
-        )}
-
-        {lastError && (
-          <span style={{ color: "#ef4444", fontSize: "12px" }}>
-            ⚠ {lastError}
+        </div>
+        {isRunning && (
+          <span className="text-zinc-600 border-l border-[#1a2b3b] pl-5">
+            {status?.cyclesCompleted} cycles · last_{status?.lastCycleAt ? new Date(status.lastCycleAt).toLocaleTimeString() : "—"}
           </span>
         )}
       </div>
 
-      {/* Right — toggle */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        {error && (
-          <span style={{ color: "#ef4444", fontSize: "12px" }}>{error}</span>
-        )}
-
-        <span style={{ color: "var(--text)", fontSize: "12px" }}>
-          {enabled ? "Disable" : "Enable"} agent
-        </span>
-
-        {/* Toggle switch */}
-        <button
-          onClick={toggle}
-          disabled={toggling || enabled === null}
-          style={{
-            width:        "44px",
-            height:       "24px",
-            borderRadius: "12px",
-            border:       "none",
-            cursor:       toggling ? "wait" : "pointer",
-            background:   enabled ? "var(--accent)" : "var(--border)",
-            position:     "relative",
-            transition:   "background 0.2s",
-            padding:      0,
-          }}
-          title={enabled ? "Click to disable agent" : "Click to enable agent"}
-        >
-          <span style={{
-            position:     "absolute",
-            top:          "3px",
-            left:         enabled ? "23px" : "3px",
-            width:        "18px",
-            height:       "18px",
-            borderRadius: "50%",
-            background:   "#fff",
-            transition:   "left 0.2s",
-            display:      "block",
-          }} />
-        </button>
+      <div className="flex items-center gap-6">
+        {error && <span className="text-red-500 font-bold">⚠ {error}</span>}
+        <div className="flex items-center gap-4">
+          <span className="text-zinc-500 font-black">{enabled ? "Disable" : "Enable"}_Core</span>
+          <button
+            onClick={toggle}
+            disabled={toggling || enabled === null}
+            className={`w-12 h-6 border flex items-center px-1 transition-all ${enabled ? 'border-[#00d1ff] bg-[#00d1ff11]' : 'border-zinc-800 bg-transparent'}`}
+          >
+            <motion.div 
+              animate={{ x: enabled ? 24 : 0 }}
+              className={`w-4 h-4 shadow-lg ${enabled ? 'bg-[#00d1ff]' : 'bg-zinc-800'}`} 
+            />
+          </button>
+        </div>
       </div>
     </div>
   );

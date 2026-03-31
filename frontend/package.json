@@ -11,8 +11,12 @@
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.18.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "framer-motion": "^12.38.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.2",
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

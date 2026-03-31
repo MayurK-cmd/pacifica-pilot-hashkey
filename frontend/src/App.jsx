@@ -1,39 +1,70 @@
 import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { usePrivy } from "@privy-io/react-auth";
 import { useApi } from "./useApi";
-import LoginPage from "./LoginPage";
-import OnboardingPage from "./Onboarding";
-import Dashboard from "./Dashboard";
+
+// Pages
+import LandingPage from "./pages/LandingPage";
+import DocsPage from "./pages/DocsPage";
+import LoginPage from "./pages/LoginPage";
+import OnboardingPage from "./pages/Onboarding";
+import Dashboard from "./pages/Dashboard";
 
 export default function App() {
   const { ready, authenticated, user, logout } = usePrivy();
   const api = useApi();
-  const [onboarded, setOnboarded] = useState(null); // null = loading
+  const [onboarded, setOnboarded] = useState(null);
 
-  // Once authenticated, sync user to our backend and check onboarding status
   useEffect(() => {
-    if (!authenticated || !user) return;
+    // Only sync if we have a user and are authenticated
+    if (!authenticated || !user) {
+      setOnboarded(null);
+      return;
+    }
 
-    const email         = user.email?.address || null;
-    const walletAddress = user.wallet?.address || null;
-
-    api.post("/api/auth/sync", { email, walletAddress })
+    api.post("/api/auth/sync", { 
+      email: user.email?.address || null, 
+      walletAddress: user.wallet?.address || null 
+    })
       .then(data => setOnboarded(data.onboarded))
       .catch(() => setOnboarded(false));
-  }, [authenticated, user]);
+  }, [authenticated, user, api]);
 
-  // Not ready yet
-  if (!ready) return <p>Loading...</p>;
+  if (!ready) return (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center font-mono text-zinc-500 uppercase tracking-widest">
+      Initialising_System_Core...
+    </div>
+  );
 
-  // Not logged in
-  if (!authenticated) return <LoginPage />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/docs" element={<DocsPage />} />
+        
+        {/* Login Route: If already logged in, go to dashboard */}
+        <Route 
+          path="/login" 
+          element={authenticated ? <Navigate to="/dashboard" /> : <LoginPage />} 
+        />
 
-  // Logged in but waiting for sync response
-  if (onboarded === null) return <p>Setting up your account...</p>;
+        {/* Protected Dashboard Route */}
+        <Route 
+          path="/dashboard" 
+          element={
+            !authenticated ? <Navigate to="/login" /> : 
+            onboarded === null ? (
+              <div className="min-h-screen bg-zinc-950 flex items-center justify-center font-mono text-zinc-500">SYNCING_STATE...</div>
+            ) : !onboarded ? (
+              <OnboardingPage onDone={() => setOnboarded(true)} />
+            ) : (
+              <Dashboard user={user} onLogout={logout} />
+            )
+          } 
+        />
 
-  // Logged in but hasn't saved Pacifica key yet
-  if (!onboarded) return <OnboardingPage onDone={() => setOnboarded(true)} />;
-
-  // Fully set up
-  return <Dashboard user={user} onLogout={logout} />;
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
