@@ -80,13 +80,16 @@ export default function PortfolioTab() {
   const totalPnl = portfolio.totalUnrealisedPnl || 0;
   const equity = portfolio.accountEquity || 0;
   const tradingVolume = portfolio.totalVolumeUsdc || 0;
-  const returnPct = equity > 0 ? ((totalPnl / equity) * 100) : 0;
+  const equityHistory = portfolio.equityHistory || [];
+  // Use backend-calculated realized PnL from trades history
+  const totalRealizedPnl = portfolio.totalRealizedPnl || 0;
+  const returnPct = equity > 0 ? ((totalRealizedPnl / equity) * 100) : 0;
   const totalBorrowed = portfolio.totalBorrowed || 0;
   const takerFee = ((portfolio.takerFeeRate || 0) * 100).toFixed(4);
   const makerFee = ((portfolio.makerFeeRate || 0) * 100).toFixed(4);
 
   // Get equity history for chart - this comes from /portfolio endpoint
-  const equityHistory = portfolio.equityHistory || [];
+  
 
   // Calculate Sharpe Ratio and Max Drawdown from equity history
   const calculateSharpeRatio = () => {
@@ -243,7 +246,7 @@ export default function PortfolioTab() {
         {/* Left: Detailed Stats */}
         <div className="lg:col-span-1 bg-zinc-950 border border-zinc-900 p-6 space-y-4">
           <StatRow label="Equity" value={`$${equity.toFixed(2)}`} />
-          <StatRow label="PnL" value={`${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}`} valueColor={totalPnl >= 0 ? "#22c55e" : "#ef4444"} />
+          <StatRow label="PnL" value={`${totalRealizedPnl >= 0 ? '+' : ''}$${totalRealizedPnl.toFixed(2)}`} valueColor={totalRealizedPnl >= 0 ? "#22c55e" : "#ef4444"} />
           <StatRow label="Trading_Volume" value={`$${tradingVolume.toFixed(2)}`} />
           <StatRow label="Return_%" value={`${returnPct.toFixed(2)}%`} />
           <StatRow label="Sharpe_Ratio" value={sharpeRatio > 0 ? sharpeRatio.toFixed(4) : "0.0000"} />

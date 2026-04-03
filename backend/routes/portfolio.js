@@ -145,10 +145,13 @@ router.get("/", async (req, res) => {
 
     // ── Equity / PnL History ─────────────────────────────────────────────────────
     // API: account_equity, pnl, timestamp
+    // Note: Pacifica's "pnl" is cumulative from account start, often 0 for new accounts
+    // We calculate relative PnL from first equity point
+    const firstEquity = portfolioData.length > 0 ? parseFloat(portfolioData[0].account_equity || 0) : 0;
     const equityHistory = portfolioData.map(e => ({
       timestamp: e.timestamp,
       equity:    parseFloat(e.account_equity || 0),
-      pnl:       parseFloat(e.pnl            || 0),
+      pnl:       parseFloat(e.account_equity || 0) - firstEquity, // Relative PnL from start
     }));
 
     // ── Spot Balances (crypto holdings from account data) ─────────────────────────
@@ -162,6 +165,7 @@ router.get("/", async (req, res) => {
     // ── Derived Stats ─────────────────────────────────────────────────────────────
     const totalVolumeUsdc    = history.reduce((sum, h) => sum + h.execPrice * h.size, 0);
     const totalUnrealisedPnl = positions.reduce((sum, p) => sum + p.unrealisedPnl, 0);
+    const totalRealizedPnl   = history.reduce((sum, h) => sum + (h.pnl || 0), 0);
 
     res.json({
       pacificaAddress,
@@ -196,6 +200,7 @@ router.get("/", async (req, res) => {
       spotBalances,
 
       // Totals
+      totalRealizedPnl,
       totalUnrealisedPnl,
       totalVolumeUsdc,
       updatedAt: accData.updated_at || null,
