@@ -20,6 +20,7 @@ import sentiment as snt
 import strategy as strat
 import executor as exe
 import logger as log
+from hashkey_logger import log_to_chain
 
 BACKEND_URL  = os.getenv("BACKEND_URL", "")
 AGENT_SECRET = os.getenv("AGENT_API_SECRET", "")
@@ -184,6 +185,19 @@ def process_symbol(
         # 6. Log to backend
         log.log_decision(decision, market, sentiment, order_result, pnl_usdc=pnl_usdc)
         log.send_heartbeat(symbol=symbol)
+
+        # 7. Log to HashKey Chain (on-chain audit trail)
+        log_to_chain(
+            symbol     = symbol,
+            action     = decision["action"],
+            mark_price = current_price,
+            pnl_usdc   = pnl_usdc,
+            confidence = decision["confidence"],
+            rsi_5m     = market.get("rsi_14"),
+            rsi_1h     = market.get("rsi_1h"),
+            reasoning  = decision["reasoning"],
+            dry_run    = DRY_RUN,
+        )
 
     except Exception as e:
         import traceback

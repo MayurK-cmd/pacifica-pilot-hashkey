@@ -15,19 +15,28 @@ export default function DocsPage() {
   return (
     <div className="min-h-screen bg-[#020408] text-zinc-300 font-sans selection:bg-[#00d1ff] selection:text-black flex flex-col">
 
-      <div className="flex flex-col md:flex-row flex-1">
-        {/* Surgical Sidebar Navigation */}
-        <aside className="w-full md:w-80 border-r border-[#1a2b3b] bg-black p-10 flex flex-col z-20 overflow-y-auto custom-scrollbar">
-          <Link to="/" className="text-white font-black tracking-[0.4em] text-sm mb-16 uppercase flex items-center gap-3 group">
+      <div className="flex flex-col md:flex-row flex-1 relative">
+        {/* Fixed Sidebar Navigation */}
+        <aside className="hidden md:flex w-80 border-r border-[#1a2b3b] bg-black p-10 flex-col z-20 sticky top-0 h-screen">
+          <Link to="/" className="text-white font-black tracking-[0.4em] text-sm mb-16 uppercase flex items-center gap-3 group shrink-0">
             <div className="w-4 h-4 rotate-45 border-2 transition-all group-hover:bg-[#00d1ff]" style={{ borderColor: blue }} />
             ← <span className="group-hover:text-[#00d1ff]">PILOT_HOME</span>
           </Link>
 
-          <nav className="space-y-12 uppercase font-mono text-[11px] tracking-widest">
+          <nav className="space-y-12 uppercase font-mono text-[11px] tracking-widest overflow-y-auto custom-scrollbar pb-32">
+            <div>
+              <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">00_HashKey_Chain</p>
+              <ul className="space-y-4 pl-4 border-l border-zinc-800">
+                <li><a href="#hashkey-chain" className="hover:text-white transition-colors">HashKey_Integration</a></li>
+                <li><a href="#deployed-contract" className="hover:text-white transition-colors">Deployed_Contract</a></li>
+                <li><a href="#on-chain-audit" className="hover:text-white transition-colors">On_Chain_Audit</a></li>
+              </ul>
+            </div>
             <div>
               <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">01_Getting_Started</p>
               <ul className="space-y-4 pl-4 border-l border-zinc-800">
                 <li><a href="#overview" className="hover:text-white transition-colors">Overview</a></li>
+                <li><a href="#how-it-works" className="hover:text-white transition-colors">How_It_Works</a></li>
                 <li><a href="#quickstart" className="hover:text-white transition-colors">Quick_Start</a></li>
               </ul>
             </div>
@@ -35,22 +44,30 @@ export default function DocsPage() {
               <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">02_System_Specs</p>
               <ul className="space-y-4 pl-4 border-l border-zinc-800">
                 <li><a href="#architecture" className="hover:text-white transition-colors">Architecture</a></li>
+                <li><a href="#file-structure" className="hover:text-white transition-colors">File_Structure</a></li>
                 <li><a href="#workflow" className="hover:text-white transition-colors">Workflow</a></li>
                 <li><a href="#mechanics" className="hover:text-white transition-colors">Trading_Mechanics</a></li>
               </ul>
             </div>
             <div>
-              <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">03_Deployment</p>
+              <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">03_Deployment_Options</p>
+              <ul className="space-y-4 pl-4 border-l border-zinc-800">
+                <li><a href="#local-setup" className="hover:text-white transition-colors">Full_Local</a></li>
+                <li><a href="#cloud-agent" className="hover:text-white transition-colors">Cloud_Agent</a></li>
+                <li><a href="#self-hosted" className="hover:text-white transition-colors">Self_Hosted</a></li>
+              </ul>
+            </div>
+            <div>
+              <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">04_Installation</p>
               <ul className="space-y-4 pl-4 border-l border-zinc-800">
                 <li><a href="#prerequisites" className="hover:text-white transition-colors">Prerequisites</a></li>
-                <li><a href="#installation" className="hover:text-white transition-colors">Installation</a></li>
                 <li><a href="#backend-setup" className="hover:text-white transition-colors">Backend_Config</a></li>
                 <li><a href="#frontend-setup" className="hover:text-white transition-colors">Frontend_Config</a></li>
                 <li><a href="#agent-setup" className="hover:text-white transition-colors">Agent_Config</a></li>
               </ul>
             </div>
             <div>
-              <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">04_Pacifica_Setup</p>
+              <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">05_Pacifica_Setup</p>
               <ul className="space-y-4 pl-4 border-l border-zinc-800">
                 <li><a href="#pacifica-wallet" className="hover:text-white transition-colors">Create_Wallet</a></li>
                 <li><a href="#pacifica-keys" className="hover:text-white transition-colors">Generate_Keys</a></li>
@@ -58,14 +75,14 @@ export default function DocsPage() {
               </ul>
             </div>
             <div>
-              <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">05_API_Keys</p>
+              <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">06_API_Keys</p>
               <ul className="space-y-4 pl-4 border-l border-zinc-800">
                 <li><a href="#gemini-key" className="hover:text-white transition-colors">Gemini_AI_Key</a></li>
                 <li><a href="#elfa-key" className="hover:text-white transition-colors">Elfa_AI_Key</a></li>
               </ul>
             </div>
             <div>
-              <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">06_Running</p>
+              <p style={{ color: blue }} className="mb-6 opacity-80 italic font-bold border-b border-zinc-900 pb-2">07_Running</p>
               <ul className="space-y-4 pl-4 border-l border-zinc-800">
                 <li><a href="#start-services" className="hover:text-white transition-colors">Start_Services</a></li>
                 <li><a href="#onboarding" className="hover:text-white transition-colors">Onboarding</a></li>
@@ -75,9 +92,181 @@ export default function DocsPage() {
           </nav>
         </aside>
 
+        {/* Mobile Sidebar (scrolls with content) */}
+        <aside className="md:hidden w-full border-b border-[#1a2b3b] bg-black p-10 flex flex-col z-20">
+          <Link to="/" className="text-white font-black tracking-[0.4em] text-sm mb-8 uppercase flex items-center gap-3 group">
+            <div className="w-4 h-4 rotate-45 border-2 transition-all group-hover:bg-[#00d1ff]" style={{ borderColor: blue }} />
+            ← <span className="group-hover:text-[#00d1ff]">PILOT_HOME</span>
+          </Link>
+
+          <nav className="space-y-8 uppercase font-mono text-[10px] tracking-widest">
+            <div>
+              <p style={{ color: blue }} className="mb-4 opacity-80 italic font-bold border-b border-zinc-900 pb-2">00_HashKey_Chain</p>
+              <ul className="space-y-3 pl-3 border-l border-zinc-800">
+                <li><a href="#hashkey-chain" className="hover:text-white transition-colors">HashKey_Integration</a></li>
+                <li><a href="#deployed-contract" className="hover:text-white transition-colors">Deployed_Contract</a></li>
+                <li><a href="#on-chain-audit" className="hover:text-white transition-colors">On_Chain_Audit</a></li>
+              </ul>
+            </div>
+            <div>
+              <p style={{ color: blue }} className="mb-4 opacity-80 italic font-bold border-b border-zinc-900 pb-2">01_Getting_Started</p>
+              <ul className="space-y-3 pl-3 border-l border-zinc-800">
+                <li><a href="#overview" className="hover:text-white transition-colors">Overview</a></li>
+                <li><a href="#how-it-works" className="hover:text-white transition-colors">How_It_Works</a></li>
+                <li><a href="#quickstart" className="hover:text-white transition-colors">Quick_Start</a></li>
+              </ul>
+            </div>
+            <div>
+              <p style={{ color: blue }} className="mb-4 opacity-80 italic font-bold border-b border-zinc-900 pb-2">02_System_Specs</p>
+              <ul className="space-y-3 pl-3 border-l border-zinc-800">
+                <li><a href="#architecture" className="hover:text-white transition-colors">Architecture</a></li>
+                <li><a href="#file-structure" className="hover:text-white transition-colors">File_Structure</a></li>
+                <li><a href="#workflow" className="hover:text-white transition-colors">Workflow</a></li>
+                <li><a href="#mechanics" className="hover:text-white transition-colors">Trading_Mechanics</a></li>
+              </ul>
+            </div>
+            <div>
+              <p style={{ color: blue }} className="mb-4 opacity-80 italic font-bold border-b border-zinc-900 pb-2">03_Deployment_Options</p>
+              <ul className="space-y-3 pl-3 border-l border-zinc-800">
+                <li><a href="#local-setup" className="hover:text-white transition-colors">Full_Local</a></li>
+                <li><a href="#cloud-agent" className="hover:text-white transition-colors">Cloud_Agent</a></li>
+                <li><a href="#self-hosted" className="hover:text-white transition-colors">Self_Hosted</a></li>
+              </ul>
+            </div>
+            <div>
+              <p style={{ color: blue }} className="mb-4 opacity-80 italic font-bold border-b border-zinc-900 pb-2">04_Installation</p>
+              <ul className="space-y-3 pl-3 border-l border-zinc-800">
+                <li><a href="#prerequisites" className="hover:text-white transition-colors">Prerequisites</a></li>
+                <li><a href="#backend-setup" className="hover:text-white transition-colors">Backend_Config</a></li>
+                <li><a href="#frontend-setup" className="hover:text-white transition-colors">Frontend_Config</a></li>
+                <li><a href="#agent-setup" className="hover:text-white transition-colors">Agent_Config</a></li>
+              </ul>
+            </div>
+            <div>
+              <p style={{ color: blue }} className="mb-4 opacity-80 italic font-bold border-b border-zinc-900 pb-2">05_Pacifica_Setup</p>
+              <ul className="space-y-3 pl-3 border-l border-zinc-800">
+                <li><a href="#pacifica-wallet" className="hover:text-white transition-colors">Create_Wallet</a></li>
+                <li><a href="#pacifica-keys" className="hover:text-white transition-colors">Generate_Keys</a></li>
+                <li><a href="#testnet-faucet" className="hover:text-white transition-colors">Testnet_Faucet</a></li>
+              </ul>
+            </div>
+            <div>
+              <p style={{ color: blue }} className="mb-4 opacity-80 italic font-bold border-b border-zinc-900 pb-2">06_API_Keys</p>
+              <ul className="space-y-3 pl-3 border-l border-zinc-800">
+                <li><a href="#gemini-key" className="hover:text-white transition-colors">Gemini_AI_Key</a></li>
+                <li><a href="#elfa-key" className="hover:text-white transition-colors">Elfa_AI_Key</a></li>
+              </ul>
+            </div>
+            <div>
+              <p style={{ color: blue }} className="mb-4 opacity-80 italic font-bold border-b border-zinc-900 pb-2">07_Running</p>
+              <ul className="space-y-3 pl-3 border-l border-zinc-800">
+                <li><a href="#start-services" className="hover:text-white transition-colors">Start_Services</a></li>
+                <li><a href="#onboarding" className="hover:text-white transition-colors">Onboarding</a></li>
+                <li><a href="#trading-modes" className="hover:text-white transition-colors">Trading_Modes</a></li>
+              </ul>
+            </div>
+          </nav>
+        </aside>
+
         {/* Main Content Terminal */}
-        <main className="flex-1 bg-black overflow-y-auto custom-scrollbar border-b border-[#1a2b3b]">
-          <div className="max-w-5xl mx-auto p-12 md:p-24 space-y-40">
+        <main className="flex-1 bg-black">
+          <div className="max-w-5xl mx-auto p-12 md:p-24 space-y-40 pb-48">
+
+            {/* 00. HashKey Chain Integration */}
+            <section id="hashkey-chain">
+              <div className="flex items-center gap-6 mb-12">
+                <h2 className="text-white text-4xl font-black tracking-tight uppercase italic">00. HashKey Chain Integration</h2>
+                <div className="h-px flex-1 bg-zinc-800" />
+              </div>
+              <div className="space-y-10">
+                <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">What is HashKey Chain?</h3>
+                <p className="text-zinc-400 text-lg leading-relaxed uppercase tracking-tighter">
+                  HashKey Chain is an EVM-compatible Layer 1 blockchain that provides secure, scalable infrastructure for Web3 applications.
+                  PacificaPilot uses HashKey Chain as an immutable audit layer for all AI trading decisions.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    "Tamper-proof audit trail of all AI decisions",
+                    "Transparent, verifiable trading history",
+                    "Immutable record of reasoning and confidence",
+                    "Public proof of AI strategy performance",
+                    "EVM compatibility for easy integration",
+                    "Low gas fees for frequent logging"
+                  ].map((item, i) => (
+                    <div key={i} className="p-5 border border-zinc-900 bg-zinc-950/30 flex gap-4 items-center">
+                      <span style={{ color: blue }}>[+]</span>
+                      <span className="text-[11px] uppercase font-mono">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div id="deployed-contract" className="mt-24 space-y-10">
+                <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">Deployed Contract Address</h3>
+                <div className="p-8 border border-[#00d1ff]/50 bg-[#00d1ff]/5 rounded-sm">
+                  <p className="text-zinc-400 text-sm uppercase tracking-tight mb-4">TradeLogger contract deployed on HashKey Chain testnet:</p>
+                  <pre className="text-white text-lg font-mono bg-black p-4 rounded border border-zinc-800">
+0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B
+                  </pre>
+                  <div className="mt-4 flex gap-4 text-xs">
+                    <a href="https://testnet.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B" target="_blank" rel="noreferrer"
+                       className="text-[#00d1ff] underline underline-offset-4 hover:text-white transition-colors">
+                      View on Block Explorer →
+                    </a>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                  <div className="p-5 border border-zinc-900 bg-zinc-950/30">
+                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest mb-2">Network</p>
+                    <p className="text-white font-mono text-sm">HashKey Chain Testnet</p>
+                  </div>
+                  <div className="p-5 border border-zinc-900 bg-zinc-950/30">
+                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest mb-2">RPC URL</p>
+                    <p className="text-white font-mono text-sm">https://testnet.hsk.xyz</p>
+                  </div>
+                  <div className="p-5 border border-zinc-900 bg-zinc-950/30">
+                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest mb-2">Chain ID</p>
+                    <p className="text-white font-mono text-sm">17069</p>
+                  </div>
+                  <div className="p-5 border border-zinc-900 bg-zinc-950/30">
+                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest mb-2">Block Explorer</p>
+                    <p className="text-white font-mono text-sm">testnet.hsk.xyz</p>
+                  </div>
+                </div>
+              </div>
+
+              <div id="on-chain-audit" className="mt-24 space-y-10">
+                <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">On-Chain Audit Flow</h3>
+                <div className="space-y-6">
+                  {[
+                    { step: "1", text: "AI agent makes trading decision (LONG/SHORT/HOLD/EXIT)" },
+                    { step: "2", text: "Python hashkey_logger.py converts decision to contract call" },
+                    { step: "3", text: "Transaction signed with EVM wallet and broadcast to HashKey Chain" },
+                    { step: "4", text: "TradeLogger.sol stores decision in immutable storage" },
+                    { step: "5", text: "DecisionLogged event emitted for real-time indexing" },
+                    { step: "6", text: "Frontend queries contract to display audit trail" }
+                  ].map((item, i) => (
+                    <div key={i} className="flex gap-6 items-center p-6 bg-zinc-950/20 border border-zinc-900">
+                      <span style={{ color: blue }} className="text-2xl font-black">{item.step}</span>
+                      <p className="text-zinc-400 text-sm uppercase tracking-tight">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-24 space-y-10">
+                <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">HashKey Chain RPC Configuration</h3>
+                <pre className="bg-[#050a12] border border-[#1a2b3b] p-8 text-zinc-300 text-sm font-mono leading-7 overflow-x-auto shadow-2xl">
+{`# Add to agent/.env
+HASHKEY_RPC_URL=https://testnet.hsk.xyz
+HASHKEY_PRIVATE_KEY=0xyour_evm_wallet_private_key
+TRADE_LOGGER_ADDRESS=0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B
+
+# Mainnet RPC (for production)
+# https://mainnet.hsk.xyz`}
+                </pre>
+              </div>
+            </section>
 
             {/* 01. Overview */}
             <section id="overview">
@@ -89,7 +278,7 @@ export default function DocsPage() {
                 <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">What is PacificaPilot?</h3>
                 <p className="text-zinc-400 text-lg leading-relaxed uppercase tracking-tighter">
                   PacificaPilot is an autonomous AI trading agent for Pacifica, a perpetual futures DEX on Solana.
-                  It integrates:
+                  Every trading decision is logged to HashKey Chain, creating an immutable, verifiable audit trail.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                    {[
@@ -97,7 +286,8 @@ export default function DocsPage() {
                      "Social sentiment (Elfa AI Twitter analysis)",
                      "AI reasoning (Google Gemini 2.5 Flash)",
                      "Automated execution (Ed25519-signed orders)",
-                     "Risk management (Trailing stops, limits)"
+                     "Risk management (Trailing stops, limits)",
+                     "On-chain audit via HashKey Chain"
                    ].map((item, i) => (
                      <div key={i} className="p-5 border border-zinc-900 bg-zinc-950/30 flex gap-4 items-center">
                         <span style={{ color: blue }}>[+]</span>
@@ -111,14 +301,134 @@ export default function DocsPage() {
                 <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">Quick_Start (5 Minutes)</h3>
                 <p className="text-zinc-500 text-sm leading-relaxed uppercase tracking-tight">
                   Follow the detailed deployment guide below for complete setup instructions.
+                  Or run just the agent on your cloud while using the developer's backend/frontend.
                 </p>
               </div>
             </section>
 
-            {/* 02. Architecture */}
+            {/* How It Works */}
+            <section id="how-it-works">
+              <div className="flex items-center gap-6 mb-12">
+                <h2 className="text-white text-4xl font-black tracking-tight uppercase italic">How It Works</h2>
+                <div className="h-px flex-1 bg-zinc-800" />
+              </div>
+              <div className="space-y-10">
+                <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">The Trading Cycle</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed uppercase tracking-tighter">
+                  PacificaPilot operates in continuous loops, typically every 5 minutes:
+                </p>
+                <div className="space-y-6">
+                  {[
+                    { step: "1", title: "CONFIG_FETCH", desc: "Agent polls backend API for user-configured parameters (max position, min confidence, stop-loss, take-profit)" },
+                    { step: "2", title: "MARKET_SCAN", desc: "Fetches RSI-14 (5m/1h), funding rates, and basis spread from Pacifica DEX" },
+                    { step: "3", title: "SENTIMENT_SYNC", desc: "Queries Elfa AI API for social engagement scores, mention counts, and trending rankings" },
+                    { step: "4", title: "AI_INFERENCE", desc: "Sends data to Gemini 2.5 Flash; receives action, confidence score, and reasoning" },
+                    { step: "5", title: "ORDER_EXECUTION", desc: "If confidence exceeds threshold, signs and broadcasts order to Pacifica" },
+                    { step: "6", title: "ON_CHAIN_LOGGING", desc: "Every decision sent to HashKey Chain TradeLogger contract for immutable audit" }
+                  ].map((item, i) => (
+                    <div key={i} className="flex gap-6 items-start p-6 bg-zinc-950/20 border border-zinc-900">
+                      <span style={{ color: blue }} className="text-2xl font-black min-w-[2rem]">{item.step}</span>
+                      <div>
+                        <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-2">{item.title}</h4>
+                        <p className="text-zinc-500 text-xs leading-relaxed uppercase">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* 00. HashKey Chain Integration */}
+            <section id="hashkey-chain">
+              <div className="flex items-center gap-6 mb-12">
+                <h2 className="text-white text-4xl font-black tracking-tight uppercase italic">00. HashKey Chain Integration</h2>
+                <div className="h-px flex-1 bg-zinc-800" />
+              </div>
+              <div className="space-y-10">
+                <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">Why HashKey Chain?</h3>
+                <p className="text-zinc-400 text-lg leading-relaxed uppercase tracking-tighter">
+                  PacificaPilot logs every AI trading decision to HashKey Chain, an EVM-compatible Layer 1 blockchain. This provides:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    "Tamper-proof audit trail of all AI decisions",
+                    "Transparent, verifiable trading history",
+                    "Immutable record of reasoning and confidence",
+                    "Public proof of AI strategy performance"
+                  ].map((item, i) => (
+                    <div key={i} className="p-5 border border-zinc-900 bg-zinc-950/30 flex gap-4 items-center">
+                      <span style={{ color: blue }}>[+]</span>
+                      <span className="text-[11px] uppercase font-mono">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div id="trade-logger" className="mt-24 space-y-10">
+                <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">TradeLogger Smart Contract</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed uppercase tracking-tight">
+                  The TradeLogger.sol contract (deployed on HashKey Chain testnet) stores every trading decision:
+                </p>
+                <pre className="bg-[#050a12] border border-[#1a2b3b] p-8 text-zinc-300 text-sm font-mono leading-7 overflow-x-auto shadow-2xl">
+{`// Every AI decision logged on-chain
+struct Decision {
+    uint256 id;
+    address agent;
+    string  symbol;        // "BTC" or "ETH"
+    string  action;        // "LONG" | "SHORT" | "HOLD" | "EXIT"
+    uint256 price;         // Mark price × 1e6
+    int256  pnlUsdc;       // Realised PnL × 1e6
+    uint8   confidence;    // 0-100
+    int16   rsi5m, rsi1h;  // RSI × 100
+    string  reasoning;     // AI explanation
+    bool    dryRun;        // Paper trade flag
+    uint256 timestamp;
+}`}
+                </pre>
+                <div className="p-4 border border-[#00d1ff]/30 bg-[#00d1ff]/5">
+                  <p className="text-[10px] uppercase tracking-tight text-zinc-400">
+                    <span style={{ color: blue }} className="font-bold">Contract Address:</span> Deploy your own TradeLogger.sol to HashKey Chain testnet and set TRADE_LOGGER_ADDRESS in agent/.env
+                  </p>
+                </div>
+              </div>
+
+              <div id="on-chain-audit" className="mt-24 space-y-10">
+                <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">On-Chain Audit Flow</h3>
+                <div className="space-y-6">
+                  {[
+                    { step: "1", text: "AI agent makes trading decision (LONG/SHORT/HOLD/EXIT)" },
+                    { step: "2", text: "Python hashkey_logger.py converts decision to contract call" },
+                    { step: "3", text: "Transaction signed with EVM wallet and broadcast to HashKey Chain" },
+                    { step: "4", text: "TradeLogger.sol stores decision in immutable storage" },
+                    { step: "5", text: "DecisionLogged event emitted for real-time indexing" },
+                    { step: "6", text: "Frontend queries contract to display audit trail" }
+                  ].map((item, i) => (
+                    <div key={i} className="flex gap-6 items-center p-6 bg-zinc-950/20 border border-zinc-900">
+                      <span style={{ color: blue }} className="text-2xl font-black">{item.step}</span>
+                      <p className="text-zinc-400 text-sm uppercase tracking-tight">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-24 space-y-10">
+                <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">HashKey Chain RPC Configuration</h3>
+                <pre className="bg-[#050a12] border border-[#1a2b3b] p-8 text-zinc-300 text-sm font-mono leading-7 overflow-x-auto shadow-2xl">
+{`# Add to agent/.env
+HASHKEY_RPC_URL=https://testnet.hsk.xyz
+HASHKEY_PRIVATE_KEY=0xyour_evm_wallet_private_key
+TRADE_LOGGER_ADDRESS=0xYourDeployedContractAddress
+
+# Mainnet RPC (for production)
+# https://mainnet.hsk.xyz`}
+                </pre>
+              </div>
+            </section>
+
+            {/* 01. Architecture */}
             <section id="architecture">
               <div className="flex items-center gap-6 mb-12">
-                <h2 className="text-white text-4xl font-black tracking-tight uppercase italic">02. Architecture</h2>
+                <h2 className="text-white text-4xl font-black tracking-tight uppercase italic">01. Architecture</h2>
                 <div className="h-px flex-1 bg-zinc-800" />
               </div>
               <div className="bg-[#050a12]/40 border border-[#1a2b3b] p-12 rounded-sm relative overflow-hidden group shadow-2xl mb-12">
@@ -135,6 +445,76 @@ export default function DocsPage() {
         └─ ELFA AI SENTIMENT                    └─ PACIFICA API`}
                 </pre>
               </div>
+              {/* File Structure */}
+              <div id="file-structure" className="space-y-10 mb-16">
+                <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">File Structure</h3>
+                <pre className="bg-[#050a12] border border-[#1a2b3b] p-8 text-zinc-300 text-xs font-mono leading-6 overflow-x-auto shadow-2xl">
+{`pacifica-pilot-hashkey/
+│
+├── agent/                          # Python trading agent runtime
+│   ├── main.py                     # Main loop with parallel symbol processing
+│   ├── strategy.py                 # Gemini AI decision logic & prompt
+│   ├── market.py                   # Pacifica market data fetcher
+│   ├── sentiment.py                # Elfa AI social sentiment analysis
+│   ├── executor.py                 # Pacifica order execution
+│   ├── hashkey_logger.py           # On-chain logging to HashKey Chain
+│   ├── logger.py                   # Internal logging & backend sync
+│   ├── positions.json              # Local position tracking cache
+│   ├── .env.example                # Agent environment template
+│   └── requirements.txt            # Python dependencies
+│
+├── backend/                        # Node.js API server
+│   ├── index.js                    # Express server entry point
+│   ├── middleware/
+│   │   ├── auth.js                 # JWT authentication for users
+│   │   └── crypto.js               # AES-256 encryption
+│   ├── models/
+│   │   ├── User.js                 # MongoDB user schema
+│   │   └── Config.js               # Trading config schema
+│   ├── routes/
+│   │   ├── agent.js                # Agent-facing endpoints
+│   │   ├── auth.js                 # Privy wallet authentication
+│   │   ├── config.js               # User config CRUD
+│   │   ├── logs.js                 # Decision logs retrieval
+│   │   ├── portfolio.js            # PnL calculations
+│   │   └── trades.js               # Trade history
+│   ├── .env.example                # Backend environment template
+│   └── package.json
+│
+├── frontend/                       # React + Vite UI
+│   ├── src/
+│   │   ├── main.jsx                # React entry point
+│   │   ├── App.jsx                 # Root component with routing
+│   │   ├── useApi.js               # API client hook
+│   │   ├── pages/
+│   │   │   ├── LandingPage.jsx     # Landing page
+│   │   │   ├── LoginPage.jsx       # Wallet connect via Privy
+│   │   │   ├── Onboarding.jsx      # Pacifica key setup wizard
+│   │   │   ├── Dashboard.jsx       # Main trading dashboard
+│   │   │   └── DocsPage.jsx        # Documentation
+│   │   ├── layouts/
+│   │   │   ├── MainLayout.jsx      # App shell
+│   │   │   └── AppLayout.jsx       # Dashboard layout
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx          # Top navigation
+│   │   │   └── AgentStatusBar.jsx  # Agent connection indicator
+│   │   └── tabs/
+│   │       ├── DecisionsTab.jsx    # On-chain decision history
+│   │       ├── LogsTab.jsx         # Agent activity logs
+│   │       ├── PortfolioTab.jsx    # PnL and positions
+│   │       └── ConfigTab.jsx       # Trading parameters
+│   ├── .env.example                # Frontend environment template
+│   └── package.json
+│
+├── contracts/                      # Solidity smart contracts
+│   ├── TradeLogger.sol             # On-chain audit log contract
+│   └── README.md                   # Contract documentation
+│
+├── README.md                       # Main documentation
+└── trades.json                     # Historical trade data`}
+                </pre>
+              </div>
+
               <div id="workflow" className="space-y-12">
                 <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">Workflow_Cycle</h3>
                 <div className="grid grid-cols-1 gap-6">
@@ -157,10 +537,10 @@ export default function DocsPage() {
               </div>
             </section>
 
-            {/* 03. Signal Mechanics */}
+            {/* 02. Signal Mechanics */}
             <section id="mechanics">
               <div className="flex items-center gap-6 mb-12">
-                <h2 className="text-white text-4xl font-black tracking-tight uppercase italic">03. Mechanics</h2>
+                <h2 className="text-white text-4xl font-black tracking-tight uppercase italic">02. Mechanics</h2>
                 <div className="h-px flex-1 bg-zinc-800" />
               </div>
               <div className="bg-[#050a12]/30 border border-[#1a2b3b] p-10">
@@ -183,10 +563,151 @@ export default function DocsPage() {
               </div>
             </section>
 
-            {/* 04. Deployment Guide */}
+            {/* 03. Deployment Options */}
+            <section id="local-setup" className="pb-24">
+              <div className="flex items-center gap-6 mb-12">
+                <h2 className="text-white text-4xl font-black tracking-tight uppercase italic">03. Deployment Options</h2>
+                <div className="h-px flex-1 bg-zinc-800" />
+              </div>
+
+              <div className="space-y-10">
+                <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">Choose Your Setup</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed uppercase tracking-tighter">
+                  PacificaPilot supports flexible deployment configurations. Choose the one that fits your needs.
+                </p>
+              </div>
+
+              {/* Option 1: Full Local */}
+              <div id="local-setup" className="mt-16 space-y-10">
+                <div className="flex items-center gap-4">
+                  <div style={{ backgroundColor: blue }} className="w-10 h-10 flex items-center justify-center rounded-sm font-black text-black">1</div>
+                  <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">Full Local Setup (Development)</h3>
+                </div>
+                <p className="text-zinc-400 text-sm leading-relaxed uppercase tracking-tighter">
+                  Run everything on your machine. Best for understanding the system and testing.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-5 border border-zinc-900 bg-zinc-950/30">
+                    <p className="text-white font-bold uppercase tracking-widest text-xs mb-2">Backend</p>
+                    <p className="text-zinc-500 text-[10px] uppercase">Localhost:3001</p>
+                  </div>
+                  <div className="p-5 border border-zinc-900 bg-zinc-950/30">
+                    <p className="text-white font-bold uppercase tracking-widest text-xs mb-2">Frontend</p>
+                    <p className="text-zinc-500 text-[10px] uppercase">Localhost:5173</p>
+                  </div>
+                  <div className="p-5 border border-zinc-900 bg-zinc-950/30">
+                    <p className="text-white font-bold uppercase tracking-widest text-xs mb-2">Agent</p>
+                    <p className="text-zinc-500 text-[10px] uppercase">Local Python Process</p>
+                  </div>
+                </div>
+                <pre className="bg-[#050a12] border border-[#1a2b3b] p-6 text-zinc-300 text-sm font-mono leading-7 overflow-x-auto shadow-2xl">
+{`# Terminal 1: Backend
+cd backend && npm start
+
+# Terminal 2: Frontend
+cd frontend && npm run dev
+
+# Terminal 3: Agent
+cd agent && python main.py
+
+# Access: http://localhost:5173`}
+                </pre>
+              </div>
+
+              {/* Option 2: Cloud Agent */}
+              <div id="cloud-agent" className="mt-16 space-y-10">
+                <div className="flex items-center gap-4">
+                  <div style={{ backgroundColor: blue }} className="w-10 h-10 flex items-center justify-center rounded-sm font-black text-black">2</div>
+                  <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">Cloud Agent + Dev's Backend/Frontend</h3>
+                </div>
+                <p className="text-zinc-400 text-sm leading-relaxed uppercase tracking-tighter">
+                  Run only the Python agent on your cloud server (AWS, GCP, DigitalOcean) while using the developer's deployed backend and frontend.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-5 border border-zinc-900 bg-zinc-950/30">
+                    <p className="text-white font-bold uppercase tracking-widest text-xs mb-2">Backend</p>
+                    <p className="text-zinc-500 text-[10px] uppercase">Developer's Server</p>
+                  </div>
+                  <div className="p-5 border border-zinc-900 bg-zinc-950/30">
+                    <p className="text-white font-bold uppercase tracking-widest text-xs mb-2">Frontend</p>
+                    <p className="text-zinc-500 text-[10px] uppercase">Developer's Vercel/Netlify</p>
+                  </div>
+                  <div className="p-5 border border-zinc-900 bg-zinc-950/30">
+                    <p className="text-white font-bold uppercase tracking-widest text-xs mb-2">Agent</p>
+                    <p className="text-zinc-500 text-[10px] uppercase">Your Cloud Server</p>
+                  </div>
+                </div>
+                <div className="p-4 border border-[#00d1ff]/30 bg-[#00d1ff]/5">
+                  <p className="text-[10px] uppercase tracking-tight text-zinc-400">
+                    <span style={{ color: blue }} className="font-bold">Use Case:</span> You want to trade with your own AI agent but don't want to host the infrastructure.
+                  </p>
+                </div>
+                <pre className="bg-[#050a12] border border-[#1a2b3b] p-6 text-zinc-300 text-sm font-mono leading-7 overflow-x-auto shadow-2xl">
+{`# SSH into your cloud server
+ssh user@your-server-ip
+
+# Clone and setup
+git clone https://github.com/MayurK-cmd/pacifica-pilot-hashkey.git
+cd pacifica-pilot-hashkey/agent
+pip install -r requirements.txt
+
+# Configure agent/.env
+BACKEND_URL=https://dev-backend.pacifica-pilot.com
+AGENT_API_SECRET=request_from_developer
+# ... Pacifica, AI, and HashKey Chain keys
+
+# Run agent (use screen/tmux for persistence)
+screen -S pacifica-agent
+python main.py
+# Ctrl+A, D to detach`}
+                </pre>
+                <div className="mt-6">
+                  <p className="text-zinc-500 text-xs uppercase tracking-tight mb-4">Benefits:</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      "No backend/frontend infrastructure needed",
+                      "Agent runs 24/7 on your cloud server",
+                      "Lower latency to Pacifica API",
+                      "Developer handles database and UI updates"
+                    ].map((item, i) => (
+                      <div key={i} className="p-4 border border-zinc-900 bg-zinc-950/30 flex gap-3 items-center">
+                        <span style={{ color: blue }}>✓</span>
+                        <span className="text-[10px] uppercase font-mono">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Option 3: Self-Hosted */}
+              <div id="self-hosted" className="mt-16 space-y-10">
+                <div className="flex items-center gap-4">
+                  <div style={{ backgroundColor: blue }} className="w-10 h-10 flex items-center justify-center rounded-sm font-black text-black">3</div>
+                  <h3 style={{ color: blue }} className="text-xl font-bold uppercase tracking-widest italic">Self-Hosted Everything (Production)</h3>
+                </div>
+                <p className="text-zinc-400 text-sm leading-relaxed uppercase tracking-tighter">
+                  Deploy all components to your own infrastructure for full control.
+                </p>
+                <div className="space-y-4">
+                  {[
+                    { component: "Backend", target: "VPS, AWS EC2, or Docker container" },
+                    { component: "Frontend", target: "Vercel, Netlify, or static hosting" },
+                    { component: "Agent", target: "Same VPS as backend or separate cloud instance" },
+                    { component: "Database", target: "MongoDB Atlas or self-hosted MongoDB" }
+                  ].map((item, i) => (
+                    <div key={i} className="flex gap-6 items-center p-6 bg-zinc-950/20 border border-zinc-900">
+                      <span style={{ color: blue }} className="text-lg font-black uppercase">{item.component}</span>
+                      <p className="text-zinc-400 text-sm uppercase tracking-tight">{item.target}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* 04. Installation */}
             <section id="prerequisites" className="pb-24">
               <div className="flex items-center gap-6 mb-12">
-                <h2 className="text-white text-4xl font-black tracking-tight uppercase italic">04. Deployment Guide</h2>
+                <h2 className="text-white text-4xl font-black tracking-tight uppercase italic">04. Installation</h2>
                 <div className="h-px flex-1 bg-zinc-800" />
               </div>
 
