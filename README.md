@@ -1,639 +1,899 @@
-# PacificaPilot — AI Trading Agent on HashKey Chain
+# PacificaPilot
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![HashKey Chain](https://img.shields.io/badge/Chain-HashKey%20Chain%20Testnet-blue)](https://hashkeychain.org)
-[![DoraHacks](https://img.shields.io/badge/Submission-DoraHacks%20Hackathon-purple)](https://dorahacks.io/hackathon/2045/detail)
+Autonomous AI trading agent for Pacifica perpetual futures markets, with a real-time React dashboard for monitoring and configuration.
 
-**PacificaPilot** is an autonomous AI trading agent for Pacifica, a perpetual futures DEX on Solana. Every trading decision is logged to **HashKey Chain**, creating an immutable, verifiable audit trail of AI strategy performance.
+**Hackathon Tracks:** Trading Applications & Bots + Most Innovative Use of Pacifica
 
 ---
 
-## Table of Contents
+## 🏆 Pacifica Hackathon Submission
 
-- [Features](#features)
-- [How It Works](#how-it-works)
-- [Architecture](#architecture)
-- [File Structure](#file-structure)
-- [Tech Stack](#tech-stack)
-- [Deployment Options](#deployment-options)
-- [Quick Start - Local Setup](#quick-start---local-setup)
-- [Cloud Agent Setup](#cloud-agent-setup)
-- [HashKey Chain Integration](#hashkey-chain-integration)
-- [DoraHacks Submission](#dohacks-submission)
-- [Documentation](#documentation)
+**Eligibility:** This project uses Pacifica API for all trading operations and market data.
 
 ---
 
-## Features
+## 🖥️ Hybrid Architecture
 
-- **AI-Powered Decisions**: Gemini 2.5 Flash analyzes market signals and social sentiment
-- **Real-Time Data**: RSI-14, funding rates, basis spread, Elfa AI sentiment
-- **On-Chain Audit**: Every decision logged to HashKey Chain via TradeLogger contract
-- **Risk Management**: Trailing stops, position limits, confidence thresholds
-- **Dual Modes**: Paper trading (DRY_RUN) and live execution
-- **Multi-Asset Support**: BTC and ETH perpetual futures
-- **Parallel Processing**: Concurrent analysis of multiple symbols
+PacificaPilot uses a **hybrid deployment model** for security and flexibility:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    YOUR MACHINE (or VPS)                        │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │                    AGENT (Python)                        │   │
+│  │  - Runs 24/7 independently                               │   │
+│  │  - Holds YOUR Pacifica private keys                      │   │
+│  │  - Fetches config from our backend                       │   │
+│  │  - Executes trades on user's behalf                      │   │
+│  │  - Logs decisions + sends heartbeats                     │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                              │ x-agent-key                       │
+│                              ▼                                   │
+└─────────────────────────────────────────────────────────────────┘
+                              │ HTTPS
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    OUR SERVICES (We Provide)                    │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌────────────────┐  │
+│  │   FRONTEND      │  │    BACKEND      │  │    MongoDB     │  │
+│  │   (Vercel)      │─▶│   (Render)      │─▶│    (Atlas)     │  │
+│  │   React + Vite  │  │   Express API   │  │   User Config  │  │
+│  │   Dashboard UI  │  │   + JWT Auth    │  │   Trade History│  │
+│  └─────────────────┘  └─────────────────┘  └────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 🔒 Why This Split?
+
+**Private keys = Your responsibility. We don't want them. You shouldn't trust anyone with them.**
+
+| We Provide (Hosted) | You Run (Your Control) |
+|---------------------|------------------------|
+| Frontend Dashboard | Agent (Python script) |
+| Backend API | Your Pacifica private keys |
+| MongoDB (configs, trade history) | Your choice: local PC or VPS |
+| Authentication | Full control of funds |
+
+### Our Deployed URLs
+| Service | URL |
+|---------|-----|
+| Frontend | `https://pacificia-trading-bot.vercel.app` |
+| Backend API | `https://pacificia-trading-bot.onrender.com` |
+
+### Why Hybrid?
+- **Security**: Your Pacifica private keys NEVER leave your machine
+- **Trustless**: We can't access your funds even if we wanted to
+- **Flexibility**: Run agent locally (testing) or deploy to Render/VPS (24/7)
+- **Centralized Monitoring**: Single dashboard to track everything
+
+### Pacifica API Endpoints Used
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /order/create_market` | Execute LONG/SHORT trades |
+| `GET /api/v1/info/prices` | Real-time mark prices |
+| `GET /api/v1/position` | Fetch open positions |
+| `GET /api/v1/balance` | Account balance & equity |
+| `GET /api/v1/trades` | Trade history |
+| `GET /api/v1/funding` | Funding rate data |
+| `GET /api/v1/orderbook` | Order book depth |
+
+**Authentication:** Ed25519-signed requests using Pacifica API keypair.
 
 ---
 
-## How It Works
+## Overview
 
-### The Trading Cycle
+PacificaPilot is a full-stack autonomous trading system that:
+- Fetches real-time market data from Pacifica (perpetual futures DEX on Solana)
+- Enriches data with social sentiment from Elfa AI
+- Makes trading decisions using Google Gemini 2.5 Flash AI
+- Executes trades via Pacifica's API with proper position management
+- Streams live logs and decisions to a React dashboard
 
-PacificaPilot operates in continuous loops, typically every 5 minutes:
+---
 
-1. **Config Fetch**: Agent polls the backend API for user-configured parameters (max position size, min confidence, stop-loss, take-profit)
+## Tech Stack
 
-2. **Market Data Scan**: For each symbol (BTC/ETH):
-   - Fetches RSI-14 on 5-minute and 1-hour timeframes
-   - Retrieves funding rates from Pacifica DEX
-   - Calculates basis spread (Pacifica price vs Binance)
+### Frontend
+| Technology | Purpose |
+|------------|---------|
+| React 19 | UI framework |
+| Vite | Build tool & dev server |
+| Privy | Web3 authentication (wallet login) |
+| CSS Variables | Theming system |
 
-3. **Sentiment Analysis**: Queries Elfa AI API for:
-   - Social engagement scores
-   - Mention counts
-   - Trending rankings
+### Backend
+| Technology | Purpose |
+|------------|---------|
+| Node.js + Express | REST API server |
+| MongoDB + Mongoose | Database & ODM |
+| Privy Server Auth | JWT verification |
+| AES-256-CBC | Encryption for sensitive keys |
+| CORS | Cross-origin requests |
 
-4. **AI Inference**: Sends consolidated data to Google Gemini 2.5 Flash:
-   - Market indicators (RSI, funding, basis)
-   - Sentiment metrics
-   - Current positions and account balance
-   - Gemini returns: action (LONG/SHORT/HOLD/EXIT), confidence score, and plain-English reasoning
+### Trading Agent
+| Technology | Purpose |
+|------------|---------|
+| Python 3.11+ | Runtime |
+| Requests | HTTP client |
+| Google GenAI SDK | Gemini AI integration |
+| Solders | Solana keypair management |
+| python-dotenv | Environment configuration |
 
-5. **Order Execution**: If action is LONG/SHORT and confidence exceeds threshold:
-   - Signs order with Ed25519 Pacifica agent key
-   - Broadcasts to Pacifica DEX
-   - Records entry price for trailing stop-loss/take-profit
-
-6. **On-Chain Logging**: Every decision is sent to HashKey Chain:
-   - `hashkey_logger.py` converts decision to contract call
-   - Transaction signed with EVM wallet
-   - TradeLogger contract stores immutable record
-   - Frontend can query and display audit trail
+### External APIs
+| Service | Purpose |
+|---------|---------|
+| Pacifica | Perpetual futures trading, market data |
+| Elfa AI | Social sentiment analysis (Twitter/X) |
+| Google Gemini 2.5 Flash | AI trading decisions |
+| Binance | Fallback kline data |
+| Privy | Wallet authentication |
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              PACIFICA PILOT SYSTEM                          │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌──────────────┐         ┌──────────────┐         ┌──────────────┐
-│  React UI    │ ◄─────► │  Express API │ ◄─────► │   MongoDB    │
-│  (Vite)      │  JWT    │  (Node.js)  │  AES-256 │  (Encrypted) │
-└──────────────┘         └──────┬───────┘         └──────────────┘
-                                │
-                                │ x-agent-key
-                                ▼
-                        ┌───────────────┐
-                        │ Python Agent  │
-                        │  (main.py)    │
-                        └───────┬───────┘
-           ┌────────────────────┼────────────────────┐
-           │                    │                    │
-    ┌──────▼──────┐     ┌──────▼──────┐     ┌───────▼────────┐
-    │  Gemini AI  │     │  Pacifica   │     │ HashKey Chain  │
-    │  2.5 Flash  │     │  DEX API    │     │ TradeLogger    │
-    │  (Reasoning)│     │  (Solana)   │     │ (0xEe39...9a2B)│
-    └─────────────┘     └─────────────┘     └────────────────┘
-           │                    │                    │
-           │                    │                    │
-    ┌──────▼──────┐     ┌──────▼──────┐     ┌───────▼────────┐
-    │  Elfa AI    │     │  Pacifica   │     │  Block Explorer│
-    │  Sentiment  │     │  WebSocket  │     │  Verification  │
-    └─────────────┘     └─────────────┘     └────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                      FRONTEND (React + Vite)                    │
+│  ┌──────────┐  ┌────────────┐  ┌───────────┐  ┌─────────────┐   │
+│  │  Login   │→ │ Onboarding │→ │ Dashboard │→ │   Config    │   │
+│  │ (Privy)  │  │ (Keys)     │  │ (4 tabs)  │  │  Settings   │   │
+│  └──────────┘  └────────────┘  └───────────┘  └─────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+                              │ JWT Auth
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      BACKEND (Express + MongoDB)                │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  /api/auth      │  /api/config  │  /api/trades           │   │
+│  │  /api/portfolio │  /api/agent   │  /api/logs (SSE)       │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                              │                                  │
+│         ┌────────────────────┼────────────────────┐             │
+│         ▼                    ▼                    ▼             │
+│  ┌─────────────┐      ┌─────────────┐     ┌─────────────┐       │
+│  │  MongoDB    │      │  AES-256    │     │  In-Memory  │       │
+│  │  (Users,    │      │  Encryption │     │  Log Buffer │       │
+│  │   Config)   │      │  (Keys)     │     │  (500 lines)│       │
+│  └─────────────┘      └─────────────┘     └─────────────┘       │
+└─────────────────────────────────────────────────────────────────┘
+                              │ x-agent-key
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    AGENT (Python 3.11+)                         │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  MAIN LOOP: Every 5 min per symbol                       │   │
+│  │  1. Fetch config from backend /api/agent/config          │   │
+│  │  2. Get market snapshot (RSI 5m+1h, funding, price)      │   │
+│  │  3. Fetch Elfa AI sentiment                              │   │
+│  │  4. Ask Gemini for decision (LONG/SHORT/HOLD)            │   │
+│  │  5. Execute order if confidence > threshold              │   │
+│  │  6. Log decision + send heartbeat                        │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│         │                    │                    │             │
+│         ▼                    ▼                    ▼             │
+│  ┌─────────────┐      ┌─────────────┐     ┌─────────────┐       │
+│  │  market.py  │      │ sentiment.py│     │ strategy.py │       │
+│  │  - RSI 14   │      │  - Elfa AI  │     │  - Gemini   │       │
+│  │  - Funding  │      │  - Trending │     │  - Fallback │       │
+│  │  - Binance  │      │  - Score    │     │  - Rules    │       │
+│  │    fallback │      │             │     │             │       │
+│  └─────────────┘      └─────────────┘     └─────────────┘       │
+│                              │                                  │
+│                              ▼                                  │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                   executor.py                           │    │
+│  │  - Place market orders (create_market)                  │    │
+│  │  - Close positions (reduce_only)                        │    │
+│  │  - Track positions in-memory                            │    │
+│  │  - Sign requests with Ed25519                           │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+                              │ Ed25519 signed
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    EXTERNAL SERVICES                            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
+│  │   Pacifica  │  │   Elfa AI   │  │   Gemini    │              │
+│  │  perpetual  │  │  sentiment  │  │  2.5 Flash  │              │
+│  │    futures  │  │  analysis   │  │  AI engine  │              │
+│  └─────────────┘  └─────────────┘  └─────────────┘              │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## File Structure
+## Project Structure
 
 ```
-pacifica-pilot-hashkey/
-│
-├── agent/                          # Python trading agent runtime
-│   ├── main.py                     # Main loop with parallel symbol processing
-│   ├── strategy.py                 # Gemini AI decision logic & prompt engineering
-│   ├── market.py                   # Pacifica market data fetcher (REST + WebSocket)
-│   ├── sentiment.py                # Elfa AI social sentiment analysis
-│   ├── executor.py                 # Pacifica order execution & position management
-│   ├── hashkey_logger.py           # On-chain logging to HashKey Chain
-│   ├── logger.py                   # Internal logging & backend sync
-│   ├── positions.json              # Local position tracking cache
-│   ├── .env.example                # Agent environment template
-│   └── requirements.txt            # Python dependencies
-│
-├── backend/                        # Node.js API server
-│   ├── index.js                    # Express server entry point
-│   ├── middleware/
-│   │   ├── auth.js                 # JWT authentication for users
-│   │   └── crypto.js               # AES-256 encryption for sensitive data
-│   ├── models/
-│   │   ├── User.js                 # MongoDB user schema (wallet, Pacifica keys)
-│   │   └── Config.js               # Trading config schema (per-user settings)
-│   ├── routes/
-│   │   ├── agent.js                # Agent-facing endpoints (config, heartbeat)
-│   │   ├── auth.js                 # Privy wallet authentication
-│   │   ├── config.js               # User config CRUD
-│   │   ├── logs.js                 # Decision logs retrieval
-│   │   ├── portfolio.js            # Portfolio PnL calculations
-│   │   └── trades.js               # Trade history
-│   ├── .env.example                # Backend environment template
-│   └── package.json
-│
-├── frontend/                       # React + Vite UI
+pacifica-plot/
+├── frontend/                 # React + Vite application
 │   ├── src/
-│   │   ├── main.jsx                # React entry point
-│   │   ├── App.jsx                 # Root component with routing
-│   │   ├── useApi.js               # API client hook
-│   │   ├── pages/
-│   │   │   ├── LandingPage.jsx     # Landing page
-│   │   │   ├── LoginPage.jsx       # Wallet connect via Privy
-│   │   │   ├── Onboarding.jsx      # Pacifica key setup wizard
-│   │   │   ├── Dashboard.jsx       # Main trading dashboard
-│   │   │   └── DocsPage.jsx        # Documentation
-│   │   ├── layouts/
-│   │   │   ├── MainLayout.jsx      # App shell
-│   │   │   └── AppLayout.jsx       # Dashboard layout
+│   │   ├── App.jsx          # Main app with auth routing
+│   │   ├── Dashboard.jsx    # 4-tab dashboard
+│   │   ├── LoginPage.jsx    # Privy login
+│   │   ├── Onboarding.jsx   # Pacifica key setup
+│   │   ├── useApi.js        # API hook with JWT
 │   │   ├── components/
-│   │   │   ├── Navbar.jsx          # Top navigation
-│   │   │   └── AgentStatusBar.jsx  # Agent connection indicator
+│   │   │   └── AgentStatusBar.jsx  # Live status + toggle
 │   │   └── tabs/
-│   │       ├── DecisionsTab.jsx    # On-chain decision history
-│   │       ├── LogsTab.jsx         # Agent activity logs
-│   │       ├── PortfolioTab.jsx    # PnL and positions
-│   │       └── ConfigTab.jsx       # Trading parameters
-│   ├── .env.example                # Frontend environment template
+│   │       ├── PortfolioTab.jsx    # Balances + positions
+│   │       ├── ConfigTab.jsx       # Agent settings
+│   │       ├── DecisionsTab.jsx    # Trade history
+│   │       └── LogsTab.jsx         # Live SSE logs
+│   ├── package.json
+│   └── vite.config.js
+│
+├── backend/                  # Express + MongoDB
+│   ├── index.js             # Server entry point
+│   ├── models/
+│   │   ├── User.js          # User + encrypted keys
+│   │   └── Config.js        # Agent config
+│   ├── routes/
+│   │   ├── auth.js          # Privy sync, keys
+│   │   ├── config.js        # CRUD config
+│   │   ├── trades.js        # Trade history
+│   │   ├── portfolio.js     # Pacifica data
+│   │   ├── agent.js         # Heartbeat, status
+│   │   └── logs.js          # Log buffer + SSE
+│   ├── middleware/
+│   │   ├── auth.js          # JWT verification
+│   │   └── crypto.js        # AES encryption
 │   └── package.json
 │
-├── contracts/                      # Solidity smart contracts
-│   ├── TradeLogger.sol             # On-chain audit log contract
-│   └── README.md                   # Contract documentation
+├── agent/                    # Python trading agent
+│   ├── main.py              # Main loop
+│   ├── executor.py          # Order execution
+│   ├── market.py            # Market data + RSI
+│   ├── sentiment.py         # Elfa AI sentiment
+│   ├── strategy.py          # Gemini decisions
+│   ├── logger.py            # Log streaming
+│   └── .env                 # Agent config
 │
-├── README.md                       # This file
-└── trades.json                     # Historical trade data (for analysis)
+└── README.md
 ```
 
 ---
 
-## Tech Stack
+## Database Schema
 
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| **Frontend** | React 18 + Vite | Fast, modern UI with hot reload |
-| | TailwindCSS | Utility-first styling |
-| | Framer Motion | Smooth animations |
-| | React Router | Client-side routing |
-| | wagmi/viem | HashKey Chain contract interaction |
-| **Backend** | Node.js + Express | RESTful API server |
-| | MongoDB Atlas | Encrypted user data storage |
-| | Privy | Wallet authentication |
-| | AES-256 | Pacifica key encryption |
-| **Agent** | Python 3.11 | Trading runtime |
-| | web3.py | HashKey Chain contract calls |
-| | requests | HTTP client for APIs |
-| | ThreadPoolExecutor | Parallel symbol processing |
-| **AI/ML** | Google Gemini 2.5 Flash | Trading decision reasoning |
-| | Elfa AI | Social sentiment analysis |
-| **DEX** | Pacifica | Solana perpetual futures |
-| **Blockchain** | HashKey Chain | On-chain audit trail |
+### Users Collection
+```javascript
+{
+  _id: ObjectId,
+  privyUserId: String (unique),
+  email: String,
+  walletAddress: String,           // Ethereum wallet from Privy
+  pacificaAddress: String,         // Solana wallet pubkey
+  pacificaPrivateKey: String,      // AES-256 encrypted
+  pacificaApiKey: String,          // AES-256 encrypted
+  onboarded: Boolean,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Config Collection
+```javascript
+{
+  _id: ObjectId,
+  userId: ObjectId (ref: User, unique),
+  symbols: [String],               // e.g., ["BTC", "ETH"]
+  loopIntervalSeconds: Number,     // default: 300
+  maxPositionUsdc: Number,         // default: 50
+  minConfidence: Number,           // default: 0.6
+  dryRun: Boolean,                 // default: true
+  riskLevel: String,               // conservative/balanced/aggressive
+  enabled: Boolean,                // default: true
+  stopLossPct: Number,             // default: 3.0
+  takeProfitPct: Number,           // default: 6.0
+  useBinanceFallback: Boolean,     // default: true
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Trades Collection
+```javascript
+{
+  _id: ObjectId,
+  userId: ObjectId (ref: User),
+  symbol: String,
+  action: String,                  // LONG/SHORT/HOLD/EXIT
+  confidence: Number,
+  reasoning: String,
+  size_pct: Number,
+  mark_price: Number,
+  rsi_14: Number,
+  rsi_1h: Number,
+  funding_rate: Number,
+  sentiment_score: Number,
+  order: Object,
+  dry_run: Boolean,
+  pnl_usdc: Number,
+  createdAt: Date
+}
+```
 
 ---
 
-## Deployment Options
+## 🚀 Quick Start - For Users
 
-### Option 1: Full Local Setup (Recommended for Development)
+### Connect to Our Hosted Platform + Run Agent Locally
 
-Run everything on your machine. Best for understanding the system and testing.
+| Step | What You Do | Where |
+|------|-------------|-------|
+| 1 | Visit frontend | `https://pacificia-trading-bot.vercel.app` |
+| 2 | Login | Connect Ethereum wallet (Privy) |
+| 3 | Onboard | Enter Pacifica keys (stored encrypted in our DB) |
+| 4 | Configure | Set symbols, risk params in Config tab |
+| 5 | Run Agent | Clone repo → Setup `agent/.env` → `python main.py` |
+| 6 | Monitor | Watch live trades in dashboard |
 
-**Requirements:**
-- Python 3.11+
-- Node.js 18+
-- MongoDB Atlas account (free tier works)
+> ⚠️ **Your private keys stay in YOUR agent's `.env` — NEVER sent to our backend.**
+
+---
+
+## 📋 Full Deployment Instructions
+
+### For End Users (Connecting to Our Hosted Platform)
+
+**You need:**
+- Pacifica testnet account: [test-app.pacifica.fi](https://test-app.pacifica.fi)
+- Google Gemini API key: [aistudio.google.com](https://aistudio.google.com)
+- (Optional) Elfa AI key: [elfa.ai](https://elfa.ai)
 
 **Steps:**
-1. Clone and install all dependencies
-2. Configure backend, frontend, and agent `.env` files
-3. Start all three services in separate terminals
-4. Access frontend at `http://localhost:5173`
 
-### Option 2: Cloud Agent + Dev's Backend/Frontend
-
-Run only the Python agent on your cloud server (AWS, GCP, DigitalOcean, etc.) while using the developer's deployed backend and frontend.
-
-**Use Case:** You want to trade with your own AI agent but don't want to host the infrastructure.
-
-**Requirements:**
-- Cloud server with Python 3.11+
-- Agent configuration only
-
-**Steps:**
-1. Clone repository (agent folder only is sufficient)
-2. Install Python dependencies: `pip install -r requirements.txt`
-3. Configure `agent/.env`:
+1. **Clone the repo:**
    ```bash
-   BACKEND_URL=https://your-dev-backend-url.com
-   AGENT_API_SECRET=provided_by_developer
-   # ... Pacifica and AI keys
+   git clone https://github.com/MayurK-cmd/Pacificia-Trading-Bot.git
+   cd Pacificia-Trading-Bot/agent
    ```
-4. Run agent: `python main.py`
 
-**Benefits:**
-- No need to manage backend/frontend infrastructure
-- Agent runs 24/7 on your cloud server
-- Lower latency to Pacifica API (if server is geographically close)
-- Developer handles database, auth, and UI updates
+2. **Install Python deps:**
+   ```bash
+   pip install requests google-genai solders python-dotenv websockets
+   ```
 
-### Option 3: Self-Hosted Everything (Production)
+3. **Create `agent/.env`:**
+   ```bash
+   # Backend connection (OUR HOSTED API)
+   BACKEND_URL=https://pacificia-trading-bot.onrender.com
+   AGENT_API_SECRET=<ask_project_owner_for_this>
 
-Deploy all components to your own infrastructure for full control.
+   # Your Pacifica credentials (STAY ON YOUR MACHINE)
+   PACIFICA_PRIVATE_KEY=<your_base58_private_key>
+   PACIFICA_AGENT_PRIVATE_KEY=<your_agent_wallet_key>
 
-**Components to Deploy:**
-- Backend: VPS, AWS EC2, or container (Docker + Kubernetes)
-- Frontend: Vercel, Netlify, or static hosting
-- Agent: Same VPS as backend or separate cloud instance
-- Database: MongoDB Atlas or self-hosted MongoDB
+   # AI services
+   GEMINI_API_KEY=<your_gemini_key>
+   ELFA_API_KEY=<your_elfa_key>
+
+   # Safety first!
+   DRY_RUN=true
+   ```
+
+4. **Run the agent:**
+   ```bash
+   python main.py
+   ```
+
+5. **Connect to dashboard:**
+   - Visit `https://pacificia-trading-bot.vercel.app`
+   - Login with Privy
+   - Complete onboarding (enter Pacifica keys)
+   - Configure trading settings
+   - Watch your agent work!
 
 ---
 
-## Quick Start - Local Setup
+### For Developers (Hosting Your Own Platform)
 
-### Step 1: Clone and Install
+### Prerequisites
+
+1. **MongoDB Atlas** - Free tier at [mongodb.com/cloud/atlas](https://mongodb.com/cloud/atlas)
+2. **Privy App** - Create at [privy.io](https://privy.io)
+3. **Pacifica Account** - Set up at [test-app.pacifica.fi](https://test-app.pacifica.fi)
+4. **Elfa AI API Key** - Get from [elfa.ai](https://elfa.ai)
+5. **Google Gemini API Key** - Get from [Google AI Studio](https://aistudio.google.com)
+6. **Node.js 18+** and **Python 3.11+**
+
+---
+
+### Step 1: Clone and Install Dependencies
 
 ```bash
-# Clone repository
-git clone https://github.com/MayurK-cmd/pacifica-pilot-hashkey.git
-cd pacifica-pilot-hashkey
+cd pacifica-plot
 
-# Install backend dependencies
+# Backend
 cd backend
 npm install
 
-# Install frontend dependencies
+# Frontend
 cd ../frontend
 npm install
 
-# Install agent dependencies
+# Agent
 cd ../agent
-pip install -r requirements.txt
+pip install requests google-genai solders python-dotenv websockets
 ```
+
+---
 
 ### Step 2: Configure Backend
 
 Create `backend/.env`:
 
-```bash
-# MongoDB Atlas connection string
-MONGODB_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/pacifica_pilot
+```env
+# MongoDB Atlas connection
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/pacifica-pilot
 
-# Privy Authentication (https://privy.io)
-PRIVY_APP_ID=app_id_from_privy_dashboard
-PRIVY_APP_SECRET=secret_from_privy_dashboard
+# Privy authentication (from privy.io dashboard)
+PRIVY_APP_ID=<your_privy_app_id>
+PRIVY_APP_SECRET=<your_privy_app_secret>
 
-# Encryption key (32 random hex characters)
-ENCRYPTION_SECRET=32_random_hex_characters_here
+# AES-256 encryption key (generate random 32-char hex)
+ENCRYPTION_SECRET=<random_32_char_hex_string>
 
-# Agent authentication secret
-AGENT_API_SECRET=secure_random_string_for_agent_auth
+# Agent authentication (must match agent/.env)
+AGENT_API_SECRET=<secure_random_string_for_agent>
 ```
 
-Generate secrets:
-```bash
-# Generate AGENT_API_SECRET
-openssl rand -hex 32
-
-# Generate ENCRYPTION_SECRET
-openssl rand -hex 16
-```
+---
 
 ### Step 3: Configure Frontend
 
 Create `frontend/.env`:
 
-```bash
-# Local development
-VITE_BACKEND_URL=http://localhost:3001
-VITE_PRIVY_APP_ID=app_id_from_privy_dashboard
-
-# Or use deployed backend
-# VITE_BACKEND_URL=https://your-backend-url.com
+```env
+# Backend API URL
+VITE_API_URL=http://localhost:3001
 ```
+
+---
 
 ### Step 4: Configure Agent
 
 Create `agent/.env`:
 
-```bash
+```env
 # Backend connection
 BACKEND_URL=http://localhost:3001
-AGENT_API_SECRET=<same_as_backend.env>
+AGENT_API_SECRET=<same_as_backend>
 
-# Pacifica Testnet API
+# Pacifica API (testnet)
 PACIFICA_BASE_URL=https://test-api.pacifica.fi/api/v1
 PACIFICA_WS_URL=wss://test-ws.pacifica.fi/ws
-
-# Pacifica Wallet Keys (set after onboarding)
-PACIFICA_PRIVATE_KEY=<your_main_wallet_private_key>
+PACIFICA_PRIVATE_KEY=<your_main_wallet_private_key_base58>
 PACIFICA_AGENT_PRIVATE_KEY=<agent_wallet_private_key>
 PACIFICA_AGENT_API_KEY=<agent_api_key_from_pacifica>
 
-# AI Services
-GEMINI_API_KEY=<google_gemini_api_key>
-ELFA_API_KEY=<elfa_ai_api_key>
+# AI services
+GEMINI_API_KEY=<your_gemini_key>
+ELFA_API_KEY=<your_elfa_key>
 
-# HashKey Chain Configuration
-HASHKEY_RPC_URL=https://testnet.hsk.xyz
-HASHKEY_PRIVATE_KEY=0xyour_evm_wallet_private_key
-TRADE_LOGGER_ADDRESS=0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B
-
-# Trading Mode
+# Safety - START WITH DRY_RUN=true
 DRY_RUN=true
+
+# Trading parameters (can also set via dashboard)
+TRADE_SYMBOLS=BTC,ETH
+LOOP_INTERVAL_SECONDS=300
+MAX_POSITION_USDC=50
+MIN_CONFIDENCE=0.6
+STOP_LOSS_PCT=3.0
+TAKE_PROFIT_PCT=6.0
+USE_BINANCE_KLINE_FALLBACK=true
 ```
 
-### Step 5: Start Services
+> ⚠️ **Note**: `PACIFICA_AGENT_API_KEY` is NOT used by the agent code. Only `PACIFICA_PRIVATE_KEY` and `PACIFICA_AGENT_PRIVATE_KEY` are required.
 
+---
+
+### Step 5: Start All Services
+
+**Terminal 1 - Backend:**
 ```bash
-# Terminal 1: Backend API
 cd backend
 npm start
+# Server: http://localhost:3001
+```
 
-# Terminal 2: Frontend UI
+**Terminal 2 - Frontend:**
+```bash
 cd frontend
 npm run dev
+# Frontend: http://localhost:5173
+```
 
-# Terminal 3: Trading Agent
+**Terminal 3 - Agent:**
+```bash
 cd agent
 python main.py
-```
-
-### Step 6: Complete Onboarding
-
-1. Open `http://localhost:5173`
-2. Connect wallet via Privy
-3. Enter Pacifica wallet address
-4. Enter Pacifica Agent private key (Secret from apikey page)
-5. Save and continue to dashboard
-
----
-
-## Cloud Agent Setup
-
-To run only the agent on a cloud server while using the developer's backend/frontend:
-
-### Step 1: Server Setup
-
-```bash
-# SSH into your cloud server
-ssh user@your-server-ip
-
-# Clone repository (or just copy agent folder)
-git clone https://github.com/MayurK-cmd/pacifica-pilot-hashkey.git
-cd pacifica-pilot-hashkey/agent
-
-# Create virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Step 2: Configure Agent
-
-Create `agent/.env`:
-
-```bash
-# Use developer's deployed backend
-BACKEND_URL=https://dev-backend.pacifica-pilot.com
-AGENT_API_SECRET=request_from_developer
-
-# Pacifica Testnet API
-PACIFICA_BASE_URL=https://test-api.pacifica.fi/api/v1
-PACIFICA_WS_URL=wss://test-ws.pacifica.fi/ws
-
-# Pacifica Wallet Keys
-PACIFICA_PRIVATE_KEY=<your_main_wallet_private_key>
-PACIFICA_AGENT_PRIVATE_KEY=<agent_wallet_private_key>
-PACIFICA_AGENT_API_KEY=<agent_api_key_from_pacifica>
-
-# AI Services
-GEMINI_API_KEY=<your_gemini_api_key>
-ELFA_API_KEY=<your_elfa_api_key>
-
-# HashKey Chain Configuration
-HASHKEY_RPC_URL=https://testnet.hsk.xyz
-HASHKEY_PRIVATE_KEY=0xyour_evm_wallet_private_key
-TRADE_LOGGER_ADDRESS=0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B
-
-# Trading Mode (start with paper trading)
-DRY_RUN=true
-```
-
-### Step 3: Run Agent
-
-```bash
-# Direct execution
-python main.py
-
-# Or use screen/tmux for persistent execution
-screen -S pacifica-agent
-python main.py
-# Ctrl+A, D to detach
-
-# Or use systemd service (production)
-sudo nano /etc/systemd/system/pacifica-agent.service
-```
-
-Example systemd service:
-
-```ini
-[Unit]
-Description=PacificaPilot Trading Agent
-After=network.target
-
-[Service]
-Type=simple
-User=your-user
-WorkingDirectory=/home/your-user/pacifica-pilot-hashkey/agent
-Environment="PATH=/home/your-user/pacifica-pilot-hashkey/agent/venv/bin"
-ExecStart=/home/your-user/pacifica-pilot-hashkey/agent/venv/bin/python main.py
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-```bash
-# Enable and start
-sudo systemctl enable pacifica-agent
-sudo systemctl start pacifica-agent
-sudo systemctl status pacifica-agent
-```
-
-### Step 4: Monitor
-
-```bash
-# View logs
-tail -f agent/logs/trading.log
-
-# Or journalctl for systemd
-journalctl -u pacifica-agent -f
+# Agent polls backend every 5 minutes
 ```
 
 ---
 
-## HashKey Chain Integration
+### Step 6: User Onboarding
 
-### What is HashKey Chain?
+1. **Open frontend** at http://localhost:5173
 
-**HashKey Chain** is an EVM-compatible Layer 1 blockchain that provides secure, scalable infrastructure for Web3 applications. PacificaPilot uses HashKey Chain as an immutable audit layer for all AI trading decisions.
+2. **Login with Privy** - Click "Login / Connect Wallet"
 
-### Why HashKey Chain?
+3. **Complete Onboarding** - Enter:
+   - **Solana wallet address**: Your Phantom wallet pubkey (main wallet)
+   - **Agent private key**: From test-app.pacifica.fi/apikey (the "Secret")
+   - **Agent API key**: From test-app.pacifica.fi/apikey (the "API Key")
 
-1. **Tamper-Proof Audit Trail**: Every AI decision is permanently recorded on-chain
-2. **Transparent AI**: Unlike black-box trading bots, PacificaPilot's reasoning is publicly verifiable
-3. **EVM Compatibility**: Standard web3.py tooling works seamlessly
-4. **Low Gas Fees**: Cost-effective for frequent logging
-5. **Fast Finality**: Quick confirmation times for real-time audit updates
+4. **Configure Agent** (Config tab):
+   - Select symbols: BTC, ETH, SOL, etc. (max 10)
+   - Set max position size ($50 default)
+   - Set min confidence (60% default)
+   - Set stop-loss (3%) and take-profit (6%)
+   - Enable "Dry run" for testing
+   - Toggle "Enabled" to start the agent
+
+5. **Monitor** (Dashboard tabs):
+   - **Portfolio**: Pacifica account balances and positions
+   - **Config**: Live agent settings
+   - **Decisions**: AI trading decisions with reasoning
+   - **Logs**: Real-time log stream via SSE
+
+---
+
+## Agent Status Bar
+
+The status bar below the navigation shows:
+- **Green dot**: Agent running (heartbeat received)
+- **Yellow dot**: Enabled but offline (starting up)
+- **Grey**: Disabled (toggle to enable)
+
+---
+
+## API Reference
+
+### Authentication Routes
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/sync` | JWT | Sync Privy user |
+| POST | `/api/auth/keys` | JWT | Save Pacifica keys |
+| GET | `/api/auth/me` | JWT | Get user profile |
+
+### Config Routes
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/config` | JWT | Get config |
+| POST | `/api/config` | JWT | Update config |
+
+### Agent Routes
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/agent/config` | x-agent-key | Get trading config |
+| POST | `/api/agent/heartbeat` | x-agent-key | Send heartbeat |
+| GET | `/api/agent/status` | None | Get agent status |
+| POST | `/api/agent/toggle` | JWT | Enable/disable agent |
+
+### Trading Routes
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/trades` | JWT | Get trade history |
+| GET | `/api/trades/stats` | JWT | Get stats |
+| POST | `/api/trades` | x-agent-key | Log trade |
+| GET | `/api/portfolio` | JWT | Get portfolio |
+
+### Log Routes
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/logs` | None | Get logs |
+| GET | `/api/logs/stream` | None | SSE stream |
+| POST | `/api/logs` | x-agent-key | Push log |
+
+---
+
+## Trading Decision Flow
+
+Every cycle (default: 5 minutes) for each symbol:
+
+```
+1. FETCH MARKET DATA
+   ├─ Mark price from Pacifica
+   ├─ RSI-14 (5-minute candles)
+   ├─ RSI-14 (1-hour candles)
+   ├─ Funding rate
+   └─ 24h volume/change
+
+2. FETCH SENTIMENT
+   ├─ Elfa AI top mentions (24h)
+   ├─ Engagement score (0-1)
+   ├─ Trending rank (0-100)
+   └─ Mention count
+
+3. AI DECISION (Gemini 2.5 Flash)
+   ├─ Analyzes all signals
+   ├─ Returns: LONG/SHORT/HOLD
+   ├─ Confidence: 0-100%
+   ├─ Size: 25%/50%/75%/100%
+   └─ Reasoning: 2-3 sentences
+
+4. EXECUTE (if confidence > threshold)
+   ├─ Check no existing position
+   ├─ Place market order
+   ├─ Track entry price
+   └─ Log decision
+
+5. MONITOR EXISTING POSITIONS
+   ├─ Check stop-loss/take-profit
+   ├─ Close if triggered
+   └─ Log PnL
+```
+
+---
+
+## Decision Logic
+
+| Signal | Bullish | Bearish |
+|--------|---------|---------|
+| RSI-14 (1h) | < 35 (oversold) | > 65 (overbought) |
+| RSI-14 (5m) | < 35 | > 65 |
+| Funding Rate | Negative (shorts pay) | Positive (longs pay) |
+| Sentiment Score | High engagement | Low engagement |
+
+**Gemini synthesizes all signals** and outputs a plain-English explanation.
+
+---
+
+## Security
+
+1. **Key Encryption**: Pacifica keys encrypted with AES-256-CBC before MongoDB storage
+2. **JWT Auth**: All user routes require Privy JWT verification
+3. **Agent Auth**: Agent routes use `x-agent-key` header
+4. **Dry Run Default**: Agent starts in simulation mode
+
+---
+
+## Troubleshooting
+
+### "Agent disabled" message
+- Go to Config tab → Toggle "Enabled" ON
+- Or use the toggle in the Agent Status Bar
+
+### Agent won't connect
+- Verify `BACKEND_URL` matches your backend
+- Ensure `AGENT_API_SECRET` matches in both `.env` files
+- Check backend is running (http://localhost:3001/health)
+
+### No market data
+- Verify Pacifica keys are correct
+- Enable Binance fallback in config
+- Check logs for circuit breaker messages
+
+### Login fails
+- Verify Privy app ID/secret in backend/.env
+- Check MongoDB connection
+- Ensure frontend VITE_API_URL is correct
+
+---
+
+## Production Deployment
+
+### Backend (Render/Railway)
+```env
+MONGODB_URI=<mongodb_atlas_uri>
+PRIVY_APP_ID=<privy_id>
+PRIVY_APP_SECRET=<privy_secret>
+ENCRYPTION_SECRET=<32_char_hex>
+AGENT_API_SECRET=<secure_string>
+PORT=3001
+```
+
+### Frontend (Vercel)
+```env
+VITE_API_URL=https://your-backend.onrender.com
+```
+
+### Agent (VPS)
+```env
+BACKEND_URL=https://your-backend.onrender.com
+AGENT_API_SECRET=<same_as_backend>
+DRY_RUN=false  # Production only!
+```
+
+---
+
+## 🔗 HashKey Chain Integration
+
+**Every AI trading decision is logged on-chain** to create an immutable, verifiable audit trail.
 
 ### Deployed Contract
 
-The TradeLogger contract is deployed on HashKey Chain testnet at:
+| Property | Value |
+|----------|-------|
+| **Contract Name** | TradeLogger |
+| **Network** | HashKey Chain Testnet |
+| **Contract Address** | `0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B` |
+| **Block Explorer** | [testnet-explorer.hsk.xyz/address/0xEe39...9a2B](https://testnet-explorer.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B) |
 
+### Network Configuration
+
+```env
+# Add to agent/.env
+HASHKEY_RPC_URL=https://testnet.hsk.xyz
+HASHKEY_PRIVATE_KEY=0xyour_evm_wallet_private_key
+TRADE_LOGGER_ADDRESS=0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B
 ```
-0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B
-```
 
-**Network Details:**
-- Network: HashKey Chain Testnet
-- RPC URL: `https://testnet.hsk.xyz`
-- Chain ID: 17069
-- Block Explorer: `https://testnet.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B`
+### What Gets Logged On-Chain
 
-### What Gets Logged
-
-Every trading decision is stored on HashKey Chain:
+Every trading decision is stored with:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `id` | uint256 | Unique decision ID |
-| `agent` | address | EVM wallet address of logging agent |
 | `symbol` | string | "BTC" or "ETH" |
 | `action` | string | "LONG", "SHORT", "HOLD", or "EXIT" |
-| `price` | uint256 | Mark price × 1e6 (fixed-point) |
-| `pnlUsdc` | int256 | Realized PnL × 1e6 (negative = loss) |
-| `confidence` | uint8 | AI confidence score (0-100) |
-| `rsi5m` | int16 | RSI 5-minute × 100 (-1 if unavailable) |
-| `rsi1h` | int16 | RSI 1-hour × 100 (-1 if unavailable) |
+| `price` | uint256 | Mark price × 1e6 |
+| `pnlUsdc` | int256 | Realized PnL × 1e6 |
+| `confidence` | uint8 | AI confidence (0-100) |
+| `rsi5m` | int16 | RSI 5-minute × 100 |
+| `rsi1h` | int16 | RSI 1-hour × 100 |
 | `reasoning` | string | AI's plain-English explanation |
 | `dryRun` | bool | true = paper trade, false = live |
-| `timestamp` | uint256 | Block timestamp |
 
-### How Logging Works
+### On-Chain Audit Flow
 
-```python
-# From agent/hashkey_logger.py
-
-def log_to_chain(symbol, action, mark_price, pnl_usdc, confidence, 
-                 rsi_5m, rsi_1h, reasoning, dry_run):
-    # 1. Convert floats to fixed-point integers
-    price_int = int(round(mark_price * 1_000_000))
-    pnl_int = int(round(pnl_usdc * 1_000_000))
-    conf_int = max(0, min(100, int(round(confidence * 100))))
-    
-    # 2. Build contract call
-    tx = contract.functions.logDecision(
-        symbol, action, price_int, pnl_int, conf_int, dry_run
-    )
-    
-    # 3. Sign and broadcast
-    signed = account.sign_transaction(tx)
-    tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
-    
-    # 4. Wait for confirmation
-    w3.eth.wait_for_transaction_receipt(tx_hash)
-    
-    # 5. Log additional details (RSI, reasoning)
-    contract.functions.addDetails(decision_id, rsi5m, rsi1h, reasoning)
+```
+┌─────────────────────────────────────────────────────────────┐
+│  PACIFICA PILOT AGENT (Python)                              │
+│  Every 5 minutes per symbol:                                │
+│  1. Fetch market data (RSI, funding, basis)                 │
+│  2. Get Elfa AI sentiment                                   │
+│  3. Gemini 2.5 Flash returns decision                       │
+│  4. Execute order on Pacifica (if confidence > threshold)   │
+│  5. Call hashkey_logger.log_to_chain()                      │
+└──────────────────────┬──────────────────────────────────────┘
+                       │ web3.py transaction
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│  HASHKEY CHAIN (EVM Layer 1)                                │
+│  TradeLogger Contract: 0xEe39...9a2B                        │
+│  - logDecision() stores decision struct                     │
+│  - addDetails() adds RSI + reasoning                        │
+│  - DecisionLogged event emitted                             │
+└──────────────────────┬──────────────────────────────────────┘
+                       │ immutable storage
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│  VERIFICATION                                               │
+│  - Frontend queries contract via viem/wagmi                 │
+│  - DecisionsTab displays on-chain history                   │
+│  - Anyone can verify at:                                    │
+│    https://testnet-explorer.hsk.xyz/address/0xEe39...9a2B   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Verify On-Chain
+### Verify On-Chain Decisions
 
-View logged decisions on HashKey Chain block explorer:
-
-1. Visit: `https://testnet.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B`
+1. Visit: **https://testnet-explorer.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B**
 2. Click "Events" tab
 3. Filter by `DecisionLogged` event
 4. See all AI decisions with timestamps, actions, and reasoning
 
----
+### Why HashKey Chain?
 
-## DoraHacks Submission
-
-This project is submitted to the **DoraHacks HashKey Hackathon**.
-
-### What Makes PacificaPilot Unique
-
-1. **Transparent AI**: Unlike black-box trading bots, every decision's reasoning is publicly verifiable on HashKey Chain
-2. **Hybrid Architecture**: Combines Solana speed (Pacifica DEX) with EVM auditability (HashKey Chain)
-3. **Multi-Modal Signals**: Fuses technical indicators (RSI, funding) with social sentiment (Elfa AI)
-4. **Risk-First Design**: Trailing stops, confidence thresholds, and position limits protect capital
-5. **Dual Deployment**: Run locally or split agent to cloud while using hosted backend/frontend
-
-### Judges: How to Verify
-
-1. **View Deployed Contract**:
-   - HashKey Chain Testnet: `0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B`
-   - Block Explorer: https://testnet.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B
-
-2. **Run Agent Locally**:
-   ```bash
-   git clone https://github.com/MayurK-cmd/pacifica-pilot-hashkey.git
-   cd pacifica-pilot-hashkey/agent
-   pip install -r requirements.txt
-   # Configure .env with your keys
-   python main.py
-   ```
-
-3. **View Live Decisions**:
-   - Frontend Decisions tab shows on-chain data
-   - Filter by action, symbol, or confidence
-
-4. **Check Code Quality**:
-   - Clean, documented Python agent
-   - Production-ready Express backend
-   - Modern React frontend with TailwindCSS
+| Benefit | Description |
+|---------|-------------|
+| **Tamper-Proof Audit** | Every decision permanently recorded on-chain |
+| **Transparent AI** | Unlike black-box bots, reasoning is publicly verifiable |
+| **EVM Compatible** | Standard web3.py tooling works seamlessly |
+| **Low Gas Fees** | Cost-effective for frequent logging |
+| **Fast Finality** | Quick confirmation for real-time audit updates |
 
 ---
 
-## Documentation
+## External Resources
 
-Full in-app documentation available at `/docs` route in the frontend.
+- [Pacifica Docs](https://pacifica.gitbook.io/docs)
+- [Elfa AI x Pacifica](https://elfaai.notion.site/Elfa-x-Pacifica)
+- [Google Gemini API](https://ai.google.dev)
+- [Privy Docs](https://docs.privy.io)
+- [HashKey Chain Docs](https://hashkeychain.org/docs)
 
-### Additional Resources
+---
 
-- [Contracts README](contracts/README.md) - Detailed smart contract documentation
-- [Frontend Docs Page](frontend/src/pages/DocsPage.jsx) - In-app documentation source
-- [HashKey Chain Docs](https://hashkeychain.org/docs) - Official HashKey Chain documentation
-- [Pacifica Docs](https://docs.pacifica.fi) - Pacifica DEX API reference
+## Deployment Options
+
+### Option 1: Hybrid (Recommended)
+Frontend + Backend local, Agent on Render (24/7 uptime).
+
+**Render Agent Setup:**
+1. Create account at render.com
+2. New Web Service → Connect GitHub repo
+3. Root Directory: `agent`
+4. Build: `pip install -r requirements.txt`
+5. Start: `python main.py`
+6. Add environment variables:
+
+```env
+BACKEND_URL=https://YOUR_BACKEND.ngrok.io
+AGENT_API_SECRET=<same_as_backend>
+PACIFICA_BASE_URL=https://test-api.pacifica.fi/api/v1
+PACIFICA_PRIVATE_KEY=<wallet_key>
+PACIFICA_AGENT_PRIVATE_KEY=<agent_key>
+PACIFICA_AGENT_API_KEY=<agent_api_key>
+GEMINI_API_KEY=<gemini_key>
+ELFA_API_KEY=<elfa_key>
+DRY_RUN=true
+```
+
+**Expose Backend with ngrok:**
+```bash
+ngrok http 3001
+# Update BACKEND_URL in Render with the ngrok URL
+```
+
+### Option 2: Fully Local
+All three services on your machine (development only).
+
+```bash
+# Terminal 1 - Backend
+cd backend && npm install && npm start
+
+# Terminal 2 - Frontend  
+cd frontend && npm install && npm run dev
+
+# Terminal 3 - Agent
+cd agent && pip install -r requirements.txt && python main.py
+```
+
+---
+
+## Trading Modes
+
+### Risk Profiles
+
+| Profile | Stop Loss | Take Profit | Min Confidence | Description |
+|---------|-----------|-------------|----------------|-------------|
+| Conservative | 2% | 4% | 75% | Lower risk, waits for high-conviction setups |
+| Balanced | 3% | 6% | 60% | Moderate risk, default for most users |
+| Aggressive | 5% | 10% | 45% | Higher risk, takes more frequent trades |
+
+### Simulation Mode (DRY_RUN)
+
+**DRY_RUN=true** (Paper Trading):
+- ✓ Simulates all decisions with real market data
+- ✓ Logs reasoning, signals, and virtual PnL
+- ✓ Safe for strategy testing
+- ✓ No funds at risk
+
+**DRY_RUN=false** (Live Trading):
+- ⚠ Places real orders on Pacifica
+- ⚠ Uses actual wallet funds
+- ⚠ Full execution active
+- ⚠ Real money at risk
+
+**How Simulation Works:**
+1. Agent fetches real market data (RSI, funding, basis, sentiment)
+2. Gemini AI outputs trading decision (LONG/SHORT/HOLD)
+3. If confidence > threshold, logs what it WOULD have traded
+4. Tracks virtual position with trailing stops
+5. Simulates exit at stop-loss/take-profit levels
+
+---
+
+## Agent Strengths
+
+| Strength | Description |
+|----------|-------------|
+| **Parallel Processing** | Thread pool analyzes BTC, ETH, SOL concurrently |
+| **Trailing Stop-Loss** | High-water mark tracking locks in profits |
+| **Balance-Aware Sizing** | Caps orders at 90% of available collateral |
+| **Persistent State** | positions.json survives agent restarts |
+| **Dual Signal Architecture** | Gemini AI + rule-based fallback |
+| **Basis Spread Detection** | Flags Pacifica vs Binance arbitrage (>2%) |
 
 ---
 
 ## License
 
-MIT License
-
----
-
-## Contact
-
-- **GitHub**: [@MayurK-cmd](https://github.com/MayurK-cmd)
-- **DoraHacks**: [Submission Page](https://dorahacks.io/hackathon/2045/detail)
-- **HashKey Chain**: [Official Website](https://hashkeychain.org)
-
----
-
-**Built with HashKey Chain** - Powering transparent, verifiable AI trading.
+MIT

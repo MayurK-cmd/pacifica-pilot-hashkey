@@ -13,7 +13,7 @@
 | **Solidity Version** | ^0.8.20 |
 | **License** | MIT |
 | **Purpose** | On-chain audit trail for AI trading decisions |
-| **Block Explorer** | [testnet.hsk.xyz/address/0xEe39...9a2B](https://testnet.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B) |
+| **Block Explorer** | [testnet-explorer.hsk.xyz/address/0xEe39...9a2B](https://testnet-explorer.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B) |
 
 ---
 
@@ -175,7 +175,7 @@ Contract Address: 0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B
 | **Network** | HashKey Chain Testnet |
 | **RPC URL** | `https://testnet.hsk.xyz` |
 | **Chain ID** | 17069 |
-| **Block Explorer** | `https://testnet.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B` |
+| **Block Explorer** | `https://testnet-explorer.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B` |
 
 ### Configuration
 
@@ -207,7 +207,7 @@ curl -L https://foundry.paradigm.xyz | bash
 foundryup
 
 # Deploy
-forge create --rpc-url https://testnet.hsk.xyz \
+forge create --rpc-url https://testnet-explorer.hsk.xyz \
     --private-key $DEPLOYER_PRIVATE_KEY \
     contracts/TradeLogger.sol:TradeLogger
 ```
@@ -304,7 +304,7 @@ The Python `hashkey_logger.py` includes a circuit breaker pattern:
 ```python
 from web3 import Web3
 
-w3 = Web3(Web3.HTTPProvider("https://testnet.hsk.xyz"))
+w3 = Web3(Web3.HTTPProvider("https://testnet-explorer.hsk.xyz"))
 contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)
 
 # Get last 10 decisions
@@ -333,7 +333,7 @@ const decisions = await client.readContract({
 
 Visit the deployed contract on HashKey Chain block explorer:
 
-**https://testnet.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B**
+**https://testnet-explorer.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B**
 
 You can:
 - View all transactions to/from the contract

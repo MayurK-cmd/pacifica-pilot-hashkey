@@ -67,6 +67,19 @@ export default function DecisionsTab() {
           </div>
         </div>
 
+        {/* View On-Chain Button */}
+        <a
+          href="https://testnet-explorer.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="cursor-pointer px-6 py-3 bg-[#00d1ff]/10 hover:bg-[#00d1ff]/20 border border-[#00d1ff]/30 hover:border-[#00d1ff] text-[#00d1ff] hover:text-white transition-all rounded-lg flex items-center gap-2 group"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          <span className="text-[8px] font-black uppercase tracking-widest">View_Contract</span>
+        </a>
+
         {/* Quick Filters */}
         <div className="flex gap-2">
           {["all", "LONG", "SHORT"].map(f => (
