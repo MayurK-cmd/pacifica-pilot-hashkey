@@ -1,16 +1,80 @@
-# React + Vite
+# PacificaPilot Frontend 🤖⛓️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Real-time dashboard for the autonomous AI trading agent with on-chain decision verification via HashKey Chain.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Portfolio Tab** — Live positions, balances, and unrealized PnL
+- **Decisions Tab** — Every AI decision with reasoning, confidence, and HashKey Chain tx verification
+- **Logs Tab** — Real-time SSE stream of agent activity
+- **Config Tab** — Edit trading parameters live without restarting the agent
+- **Wallet Auth** — Privy-based authentication
+- **On-Chain Audit** — Verify AI decisions directly on HashKey Chain block explorer
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Library | Purpose |
+|---------|---------|
+| React 19 | UI framework |
+| Vite | Build tool + dev server |
+| @privy-io/react-auth | Wallet authentication |
+| framer-motion | Dashboard animations |
+| tailwindcss v4 | Styling |
+| viem + wagmi | HashKey Chain contract queries |
 
-## Expanding the ESLint configuration
+## Quick Start
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+# Install
+npm install
+
+# Dev
+npm run dev
+
+# Build
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## Environment Variables
+
+Create `frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:3001
+VITE_PRIVY_APP_ID=<your_privy_app_id>
+```
+
+For production deployment, set `VITE_API_URL` to your Render backend URL.
+
+## Deployment (Vercel)
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+```
+
+The `vercel.json` configures:
+- SPA rewrites for React Router
+- Security headers (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection)
+- Vite build configuration
+
+## HashKey Chain Integration
+
+The Decisions tab queries the `TradeLogger` contract at:
+- **Network:** HashKey Chain Testnet
+- **Address:** `0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B`
+- **Explorer:** [testnet-explorer.hsk.xyz](https://testnet-explorer.hsk.xyz/address/0xEe39002BF9783DB5dac224Df968D0e3c5CE39a2B)
+
+## Live Demo
+
+[pacificia-trading-bot.vercel.app](https://pacificia-trading-bot.vercel.app)
+
+---
+
+Built for the [HashKey Chain On-Chain Horizon Hackathon 2026](https://dorahacks.io/hackathon/2045) 🏆

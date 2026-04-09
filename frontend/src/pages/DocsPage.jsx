@@ -115,7 +115,7 @@ export default function DocsPage() {
                       </div>
                       <div className="p-4 border border-zinc-900 bg-zinc-950/30">
                         <p className="text-zinc-500 text-[10px] uppercase tracking-widest mb-1">Block Explorer</p>
-                        <p className="text-white font-mono text-xs">testnet-explorer.hsk.xyz</p>
+                        <a href="https://testnet-explorer.hsk.xyz" target="_blank" rel="noreferrer" className="text-[#00d1ff] hover:text-white transition-colors underline underline-offset-2">https://testnet-explorer.hsk.xyz</a>
                       </div>
                     </div>
                     <div className="mt-4">
